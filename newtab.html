@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FocusFrame</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="frame">
+      <header class="topbar">
+        <a class="wordmark" href="#" aria-label="FocusFrame home">focus<span>frame</span></a>
+        <div class="topbar-actions">
+          <span id="status" class="status" aria-live="polite">Your space is saved locally</span>
+          <button class="icon-button" id="edit-toggle" type="button" aria-pressed="false" aria-label="Customize dashboard">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9"/><path d="M19.5 2.5 21.5 4.5 13 13l-3.5.5.5-3.5z"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <section class="opening" aria-label="Current time and intention">
+        <p id="greeting" class="greeting"></p>
+        <time id="clock" class="clock"></time>
+        <div class="calendar-signal" aria-label="Calendar progress through the current year">
+          <div class="date-readout">
+            <p id="date" class="date"></p>
+            <p class="year-readout"><span id="year"></span> · day <span id="day-of-year"></span></p>
+          </div>
+          <div class="year-dots" id="year-dots" aria-hidden="true"></div>
+          <p class="days-left"><span id="days-left"></span> days left this year</p>
+        </div>
+        <blockquote id="quote" class="quote"></blockquote>
+      </section>
+
+      <section class="dashboard" id="dashboard" aria-label="Your dashboard modules"></section>
+    </main>
+
+    <aside class="editor" id="editor" aria-label="Customize FocusFrame" aria-hidden="true">
+      <div class="editor-head">
+        <div>
+          <p class="editor-label">MAKE IT YOURS</p>
+          <h1>Customize your frame</h1>
+        </div>
+        <button class="icon-button" id="close-editor" type="button" aria-label="Close customization panel">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+        </button>
+      </div>
+      <p class="editor-intro">Choose what appears here. In edit mode, drag modules into the order that feels right.</p>
+      <div class="editor-section">
+        <h2>Visible modules</h2>
+        <div id="module-toggles" class="module-toggles"></div>
+      </div>
+      <div class="editor-section">
+        <h2>Accent color</h2>
+        <div class="swatches" role="group" aria-label="Choose accent color">
+          <button class="swatch coral" data-accent="coral" aria-label="Coral"></button>
+          <button class="swatch cobalt" data-accent="cobalt" aria-label="Cobalt"></button>
+          <button class="swatch moss" data-accent="moss" aria-label="Moss"></button>
+          <button class="swatch plum" data-accent="plum" aria-label="Plum"></button>
+        </div>
+      </div>
+      <div class="editor-section">
+        <h2>Quick links</h2>
+        <form id="link-form" class="link-form">
+          <label><span>Name</span><input id="link-name" required maxlength="20" placeholder="Notion" /></label>
+          <label><span>URL</span><input id="link-url" required type="url" placeholder="https://..." /></label>
+          <button class="solid-button" type="submit">Add link</button>
+        </form>
+      </div>
+      <button id="reset-button" class="text-button" type="button">Reset to starter layout</button>
+    </aside>
+    <div class="scrim" id="scrim" hidden></div>
+    <script src="newtab.js"></script>
+  </body>
+</html>
