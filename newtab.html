@@ -4,6 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>FocusFrame</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100;200;300;400&family=Instrument+Serif:ital@0;1&display=swap" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
@@ -20,7 +23,7 @@
 
       <section class="opening" aria-label="Current time and intention">
         <p id="greeting" class="greeting"></p>
-        <time id="clock" class="clock"></time>
+        <time id="clock" class="clock"><span id="clock-hour"></span><span class="clock-colon" aria-hidden="true">:</span><span id="clock-minute"></span><span id="clock-period"></span></time>
         <div class="calendar-signal" aria-label="Calendar progress through the current year">
           <div class="date-readout">
             <p id="date" class="date"></p>
@@ -30,6 +33,23 @@
           <p class="days-left"><span id="days-left"></span> days left this year</p>
         </div>
         <blockquote id="quote" class="quote"></blockquote>
+      </section>
+
+      <section class="search-area" aria-label="Web search">
+        <form class="search-console" id="search-form">
+          <label class="sr-only" for="search-input">Search the web</label>
+          <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.4"/><path d="m16 16 4.5 4.5"/></svg>
+          <input id="search-input" type="search" autocomplete="off" placeholder="Search the web" />
+          <button type="submit">Search</button>
+        </form>
+        <div class="engine-row" role="group" aria-label="Choose search engine">
+          <span class="engine-label">Search with</span>
+          <button class="engine-choice" data-engine="default" type="button"><b>O</b> Default</button>
+          <button class="engine-choice" data-engine="google" type="button"><b>G</b> Google</button>
+          <button class="engine-choice" data-engine="duckduckgo" type="button"><b>D</b> DuckDuckGo</button>
+          <button class="engine-choice" data-engine="bing" type="button"><b>B</b> Bing</button>
+          <button class="engine-choice" data-engine="brave" type="button"><b>B</b> Brave</button>
+        </div>
       </section>
 
       <section class="dashboard" id="dashboard" aria-label="Your dashboard modules"></section>

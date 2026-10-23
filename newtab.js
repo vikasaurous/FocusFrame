@@ -1,17 +1,93 @@
 const DEFAULTS = {
   accent: "coral",
+  searchEngine: "default",
   order: ["focus", "links", "now", "goal", "quote"],
   visible: { focus: true, links: true, now: true, goal: true, quote: true },
-  focus: "Make room for the work that matters.",
+  focus: "What would make today feel finished?",
+  focusNote: "Ship the onboarding notes.",
+  now: "Learning to say no to good things. Running mornings. Rereading Stoner.",
+  momentumDays: [true, true, false, true, true, true, false],
   links: [
-    { name: "Gmail", url: "https://mail.google.com" },
-    { name: "Notion", url: "https://www.notion.so" },
-    { name: "YouTube", url: "https://www.youtube.com" },
-    { name: "Calendar", url: "https://calendar.google.com" }
+    { name: "Mail",     url: "https://mail.google.com" },
+    { name: "Docs",     url: "https://docs.google.com" },
+    { name: "Calendar", url: "https://calendar.google.com" },
+    { name: "Reading",  url: "https://read.readwise.io" },
+    { name: "Repo",     url: "https://github.com" },
+    { name: "Music",    url: "https://open.spotify.com" }
   ]
 };
 
-const moduleNames = { focus: "Today's focus", links: "Quick links", now: "Now", goal: "Momentum", quote: "A note to keep" };
+// ── Personalized greetings by time of day ─────────────────────────
+// Six time slots; greeting rotates daily so it never feels stale.
+const GREETINGS = {
+  // 0–3 — still up late
+  lateNight: [
+    "Still burning the midnight oil",
+    "The world is quiet right now",
+    "You and the night owls",
+    "Late again — own it",
+    "Some of the best ideas arrive this late",
+    "The hours nobody talks about",
+  ],
+  // 4–6 — early riser
+  earlyMorning: [
+    "You're up before most of the world",
+    "The day is entirely unwritten",
+    "Early start, clear head",
+    "Quiet hours — the best kind",
+    "Caught the world still asleep",
+    "A head start on the day",
+  ],
+  // 7–11 — morning
+  morning: [
+    "Let's make this morning count",
+    "Fresh page, fresh start",
+    "The morning belongs to you",
+    "Ready when you are",
+    "Something good is coming together",
+    "Pick the one thing that matters today",
+  ],
+  // 12–13 — midday
+  midday: [
+    "Halfway there — keep the momentum",
+    "How's the afternoon shaping up?",
+    "Quick check — still on track?",
+    "Good time to breathe and refocus",
+    "The afternoon is still yours to shape",
+    "Midday reset — what's the move?",
+  ],
+  // 14–17 — afternoon
+  afternoon: [
+    "Afternoon deep work hits different",
+    "A little further to go",
+    "The day isn't done with you yet",
+    "Tie up the loose ends",
+    "What's left on today's list?",
+    "Make the last few hours matter",
+  ],
+  // 18–22 — evening
+  evening: [
+    "Wind down — you earned it",
+    "How did today actually go?",
+    "Evening light, quieter mind",
+    "A good time to reflect",
+    "Day's almost done — what'll you carry into tomorrow?",
+    "Park the remaining thoughts and rest",
+  ],
+};
+
+function getGreeting(hour, dayOfYear) {
+  let pool;
+  if      (hour < 4)  pool = GREETINGS.lateNight;
+  else if (hour < 7)  pool = GREETINGS.earlyMorning;
+  else if (hour < 12) pool = GREETINGS.morning;
+  else if (hour < 14) pool = GREETINGS.midday;
+  else if (hour < 18) pool = GREETINGS.afternoon;
+  else                pool = GREETINGS.evening;
+  return pool[dayOfYear % pool.length];
+}
+
+const moduleNames = { focus: "Daily Focus", links: "Quick Links", now: "Now", goal: "Weekly Momentum", quote: "Quote" };
 const quotes = [
   ["Make room for the work that matters.", "FocusFrame"],
   ["The small things you return to become the shape of your days.", "FocusFrame"],
@@ -25,16 +101,30 @@ const $ = (selector) => document.querySelector(selector);
 const dashboard = $("#dashboard");
 
 async function load() {
-  const saved = await chrome.storage.local.get("focusFrame");
-  state = { ...structuredClone(DEFAULTS), ...(saved.focusFrame || {}) };
-  state.visible = { ...DEFAULTS.visible, ...(saved.focusFrame?.visible || {}) };
-  state.links = saved.focusFrame?.links || DEFAULTS.links;
+  let savedData = {};
+  if (window.chrome?.storage?.local) {
+    const saved = await chrome.storage.local.get("focusFrame");
+    savedData = saved.focusFrame || {};
+  } else {
+    try {
+      const item = localStorage.getItem("focusFrame");
+      if (item) savedData = JSON.parse(item);
+    } catch {}
+  }
+  state = { ...structuredClone(DEFAULTS), ...savedData };
+  state.visible = { ...DEFAULTS.visible, ...(savedData.visible || {}) };
+  state.links = savedData.links || DEFAULTS.links;
+  state.momentumDays = savedData.momentumDays || DEFAULTS.momentumDays;
   document.documentElement.dataset.accent = state.accent;
   render();
 }
 
 function save(message = "Saved") {
-  chrome.storage.local.set({ focusFrame: state });
+  if (window.chrome?.storage?.local) {
+    chrome.storage.local.set({ focusFrame: state });
+  } else {
+    try { localStorage.setItem("focusFrame", JSON.stringify(state)); } catch {}
+  }
   $("#status").textContent = message;
   window.clearTimeout(save.timer);
   save.timer = window.setTimeout(() => { $("#status").textContent = "Your space is saved locally"; }, 1800);
@@ -47,8 +137,32 @@ function updateTime() {
   const dayOfYear = Math.floor((now - yearStart) / 86400000);
   const yearEnd = new Date(now.getFullYear() + 1, 0, 1);
   const daysInYear = Math.round((yearEnd - new Date(now.getFullYear(), 0, 1)) / 86400000);
-  $("#greeting").textContent = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
-  $("#clock").textContent = new Intl.DateTimeFormat([], { hour: "numeric", minute: "2-digit" }).format(now);
+  $("#greeting").textContent = getGreeting(hour, dayOfYear);
+  
+  const formatter = new Intl.DateTimeFormat([], { hour: "numeric", minute: "2-digit" });
+  const parts = formatter.formatToParts(now);
+  let hourStr = "";
+  let minStr = "";
+  let periodStr = "";
+  for (const part of parts) {
+    if (part.type === "hour") hourStr = part.value;
+    else if (part.type === "minute") minStr = part.value;
+    else if (part.type === "dayPeriod") periodStr = part.value;
+  }
+  const hourEl = $("#clock-hour");
+  const minEl = $("#clock-minute");
+  const periodEl = $("#clock-period");
+  if (hourEl && minEl) {
+    if (hourEl.textContent !== hourStr) hourEl.textContent = hourStr;
+    if (minEl.textContent !== minStr) minEl.textContent = minStr;
+    if (periodEl) {
+      const formattedPeriod = periodStr ? ` ${periodStr}` : "";
+      if (periodEl.textContent !== formattedPeriod) periodEl.textContent = formattedPeriod;
+    }
+  } else {
+    $("#clock").textContent = formatter.format(now);
+  }
+
   $("#date").textContent = new Intl.DateTimeFormat([], { weekday: "long", month: "long", day: "numeric" }).format(now);
   $("#year").textContent = now.getFullYear();
   $("#day-of-year").textContent = String(dayOfYear).padStart(3, "0");
@@ -61,18 +175,63 @@ function renderYearDots(dayOfYear, daysInYear) {
   const dots = $("#year-dots");
   if (!dots || dots.dataset.day === String(dayOfYear)) return;
   dots.dataset.day = String(dayOfYear);
-  dots.innerHTML = Array.from({ length: daysInYear }, (_, index) => `<i class="${index < dayOfYear ? "is-complete" : ""}" aria-hidden="true"></i>`).join("");
+  dots.innerHTML = Array.from({ length: daysInYear }, (_, index) => {
+    const classes = [index < dayOfYear ? "is-complete" : "", index === dayOfYear - 1 ? "is-today" : ""].filter(Boolean).join(" ");
+    return `<i class="${classes}" aria-hidden="true"></i>`;
+  }).join("");
 }
 
 function moduleMarkup(id) {
   const title = moduleNames[id];
   const handle = '<span class="drag-handle" aria-hidden="true">DRAG</span>';
-  if (id === "focus") return `<article class="module" data-id="focus" draggable="${editing}">${handle}<p class="module-title">${title}</p><p class="focus-prompt">One thing, then the next.</p><input class="focus-input" id="focus-input" value="${escapeHtml(state.focus)}" aria-label="Today's focus" /></article>`;
-  if (id === "links") return `<article class="module" data-id="links" draggable="${editing}">${handle}<p class="module-title">${title}</p><nav class="links" aria-label="Quick links">${state.links.map(link => `<a class="link-chip" href="${safeUrl(link.url)}">${escapeHtml(link.name)}</a>`).join("")}</nav></article>`;
-  if (id === "now") return `<article class="module" data-id="now" draggable="${editing}">${handle}<p class="module-title">${title}</p><p class="now-copy">Building a home for your attention—one tab at a time.</p></article>`;
-  if (id === "goal") return `<article class="module" data-id="goal" draggable="${editing}">${handle}<p class="module-title">${title}</p><p class="goal-number">64%</p><p class="goal-caption">of this week’s intention</p><div class="goal-line" aria-label="64 percent complete"><span></span></div></article>`;
+
+  if (id === "focus") {
+    return `<article class="module" data-id="focus" draggable="${editing}">${handle}
+      <p class="module-title">${title}</p>
+      <p class="focus-prompt">${escapeHtml(state.focus)}</p>
+      <p class="focus-note">${escapeHtml(state.focusNote)}</p>
+      <input class="focus-input" id="focus-input" value="${escapeHtml(state.focus)}" aria-label="Today's focus" placeholder="What would make today feel finished?" />
+      <input class="focus-note-input" id="focus-note-input" value="${escapeHtml(state.focusNote)}" aria-label="Focus note" placeholder="Add a note..." />
+    </article>`;
+  }
+
+  if (id === "links") {
+    return `<article class="module" data-id="links" draggable="${editing}">${handle}
+      <p class="module-title">${title}</p>
+      <nav class="links-grid" aria-label="Quick links">${state.links.map(link =>
+        `<a class="link-chip" href="${safeUrl(link.url)}">${escapeHtml(link.name)}</a>`
+      ).join("")}</nav>
+    </article>`;
+  }
+
+  if (id === "now") {
+    return `<article class="module" data-id="now" draggable="${editing}">${handle}
+      <p class="module-title">${title}</p>
+      <p class="now-copy" id="now-copy">${escapeHtml(state.now)}</p>
+      <textarea class="now-input" id="now-input" aria-label="What I'm doing now" rows="3">${escapeHtml(state.now)}</textarea>
+    </article>`;
+  }
+
+  if (id === "goal") {
+    const DAY_LABELS = ["M", "T", "W", "T", "F", "S", "S"];
+    const DAY_NAMES  = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+    const filledCount = state.momentumDays.filter(Boolean).length;
+    const dots = DAY_LABELS.map((label, i) => {
+      const filled = state.momentumDays[i];
+      return `<button class="momentum-dot${filled ? " is-filled" : ""}" data-day="${i}" aria-label="${DAY_NAMES[i]}: ${filled ? "done" : "not done"}" aria-pressed="${filled}" type="button"><span class="momentum-dot-circle"></span><span class="momentum-label">${label}</span></button>`;
+    }).join("");
+    return `<article class="module" data-id="goal" draggable="${editing}">${handle}
+      <p class="module-title">${title}</p>
+      <div class="momentum-dots" role="group" aria-label="Days this week">${dots}</div>
+      <p class="momentum-count">${filledCount} of 7 days</p>
+    </article>`;
+  }
+
   const quote = quotes[(new Date().getDate() + 1) % quotes.length];
-  return `<article class="module" data-id="quote" draggable="${editing}">${handle}<p class="module-title">${title}</p><blockquote class="module-quote">“${quote[0]}”<cite>— ${quote[1]}</cite></blockquote></article>`;
+  return `<article class="module" data-id="quote" draggable="${editing}">${handle}
+    <p class="module-title">${title}</p>
+    <blockquote class="module-quote">“${quote[0]}”<cite>— ${quote[1]}</cite></blockquote>
+  </article>`;
 }
 
 function render() {
@@ -80,6 +239,7 @@ function render() {
   renderToggles();
   document.documentElement.dataset.accent = state.accent;
   document.body.classList.toggle("is-editing", editing);
+  document.querySelectorAll(".engine-choice").forEach(button => button.classList.toggle("is-selected", button.dataset.engine === state.searchEngine));
   bindModuleEvents();
 }
 
@@ -89,8 +249,28 @@ function renderToggles() {
 }
 
 function bindModuleEvents() {
-  const input = $("#focus-input");
-  if (input) input.addEventListener("change", () => { state.focus = input.value.trim() || DEFAULTS.focus; save("Focus updated"); });
+  const focusInput = $("#focus-input");
+  if (focusInput) focusInput.addEventListener("change", () => { state.focus = focusInput.value.trim() || DEFAULTS.focus; save("Focus updated"); render(); });
+
+  const focusNoteInput = $("#focus-note-input");
+  if (focusNoteInput) focusNoteInput.addEventListener("change", () => { state.focusNote = focusNoteInput.value.trim(); save("Note updated"); render(); });
+
+  const nowInput = $("#now-input");
+  const nowCopy = $("#now-copy");
+  if (nowInput) {
+    nowInput.addEventListener("input", () => { if (nowCopy) nowCopy.textContent = nowInput.value; });
+    nowInput.addEventListener("change", () => { state.now = nowInput.value.trim() || DEFAULTS.now; save("Now updated"); render(); });
+  }
+
+  dashboard.querySelectorAll(".momentum-dot").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const day = parseInt(btn.dataset.day, 10);
+      state.momentumDays[day] = !state.momentumDays[day];
+      save("Momentum updated");
+      render();
+    });
+  });
+
   dashboard.querySelectorAll(".module").forEach(module => {
     module.addEventListener("dragstart", () => { draggedId = module.dataset.id; module.classList.add("dragging"); });
     module.addEventListener("dragend", () => { draggedId = null; module.classList.remove("dragging"); });
@@ -126,6 +306,20 @@ $("#module-toggles").addEventListener("change", event => { if (!event.target.mat
 $(".swatches").addEventListener("click", event => { const button = event.target.closest("[data-accent]"); if (!button) return; state.accent = button.dataset.accent; save("Accent updated"); render(); });
 $("#link-form").addEventListener("submit", event => { event.preventDefault(); const name = $("#link-name").value.trim(), url = $("#link-url").value.trim(); if (!name || safeUrl(url) === "#") return; state.links.push({ name, url }); event.target.reset(); save("Link added"); render(); });
 $("#reset-button").addEventListener("click", () => { state = structuredClone(DEFAULTS); save("Starter layout restored"); render(); });
+$(".engine-row").addEventListener("click", event => { const button = event.target.closest("[data-engine]"); if (!button) return; state.searchEngine = button.dataset.engine; save(`${button.textContent.trim()} selected`); render(); });
+$("#search-form").addEventListener("submit", event => {
+  event.preventDefault();
+  const query = $("#search-input").value.trim();
+  if (!query) return;
+  const engines = {
+    default: "https://www.google.com/search?q=",
+    google: "https://www.google.com/search?q=",
+    duckduckgo: "https://duckduckgo.com/?q=",
+    bing: "https://www.bing.com/search?q=",
+    brave: "https://search.brave.com/search?q="
+  };
+  window.location.assign(`${engines[state.searchEngine] || engines.default}${encodeURIComponent(query)}`);
+});
 
 updateTime();
 window.setInterval(updateTime, 1000);
