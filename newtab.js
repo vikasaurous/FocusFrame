@@ -8,13 +8,13 @@ const DEFAULTS = {
   now: "Learning to say no to good things. Running mornings. Rereading Stoner.",
   momentumDays: [true, true, false, true, true, true, false],
   links: [
-    { name: "Mail",     url: "https://mail.google.com" },
-    { name: "Docs",     url: "https://docs.google.com" },
+    { name: "Mail", url: "https://mail.google.com" },
+    { name: "Docs", url: "https://docs.google.com" },
     { name: "Calendar", url: "https://calendar.google.com" },
-    { name: "Reading",  url: "https://read.readwise.io" },
-    { name: "Repo",     url: "https://github.com" },
-    { name: "Music",    url: "https://open.spotify.com" }
-  ]
+    { name: "Reading", url: "https://read.readwise.io" },
+    { name: "Repo", url: "https://github.com" },
+    { name: "Music", url: "https://open.spotify.com" },
+  ],
 };
 
 // ── Personalized greetings by time of day ─────────────────────────
@@ -76,22 +76,39 @@ const GREETINGS = {
   ],
 };
 
+/**
+ * Future premium gate. Currently always returns true.
+ * NO payment code, NO network calls — swap the body here when billing is added.
+ */
+function isFeatureUnlocked(feature) {
+  return true;
+} // eslint-disable-line no-unused-vars
+
 function getGreeting(hour, dayOfYear) {
   let pool;
-  if      (hour < 4)  pool = GREETINGS.lateNight;
-  else if (hour < 7)  pool = GREETINGS.earlyMorning;
+  if (hour < 4) pool = GREETINGS.lateNight;
+  else if (hour < 7) pool = GREETINGS.earlyMorning;
   else if (hour < 12) pool = GREETINGS.morning;
   else if (hour < 14) pool = GREETINGS.midday;
   else if (hour < 18) pool = GREETINGS.afternoon;
-  else                pool = GREETINGS.evening;
+  else pool = GREETINGS.evening;
   return pool[dayOfYear % pool.length];
 }
 
-const moduleNames = { focus: "Daily Focus", links: "Quick Links", now: "Now", goal: "Weekly Momentum", quote: "Quote" };
+const moduleNames = {
+  focus: "Daily Focus",
+  links: "Quick Links",
+  now: "Now",
+  goal: "Weekly Momentum",
+  quote: "Quote",
+};
 const quotes = [
   ["Make room for the work that matters.", "FocusFrame"],
-  ["The small things you return to become the shape of your days.", "FocusFrame"],
-  ["Start where your feet are. Make the next hour count.", "FocusFrame"]
+  [
+    "The small things you return to become the shape of your days.",
+    "FocusFrame",
+  ],
+  ["Start where your feet are. Make the next hour count.", "FocusFrame"],
 ];
 let state = structuredClone(DEFAULTS);
 let editing = false;
@@ -115,19 +132,31 @@ async function load() {
   state.visible = { ...DEFAULTS.visible, ...(savedData.visible || {}) };
   state.links = savedData.links || DEFAULTS.links;
   state.momentumDays = savedData.momentumDays || DEFAULTS.momentumDays;
+  // Merge snake settings with safe defaults (Step 5 adds the settings UI).
+  state.snake = {
+    enabled: false,
+    speed: "slow",
+    regrow: true,
+    ...(savedData.snake || {}),
+  };
   document.documentElement.dataset.accent = state.accent;
   render();
+  applySnakeRenderer();
 }
 
 function save(message = "Saved") {
   if (window.chrome?.storage?.local) {
     chrome.storage.local.set({ focusFrame: state });
   } else {
-    try { localStorage.setItem("focusFrame", JSON.stringify(state)); } catch {}
+    try {
+      localStorage.setItem("focusFrame", JSON.stringify(state));
+    } catch {}
   }
   $("#status").textContent = message;
   window.clearTimeout(save.timer);
-  save.timer = window.setTimeout(() => { $("#status").textContent = "Your space is saved locally"; }, 1800);
+  save.timer = window.setTimeout(() => {
+    $("#status").textContent = "Your space is saved locally";
+  }, 1800);
 }
 
 function updateTime() {
@@ -136,10 +165,15 @@ function updateTime() {
   const yearStart = new Date(now.getFullYear(), 0, 0);
   const dayOfYear = Math.floor((now - yearStart) / 86400000);
   const yearEnd = new Date(now.getFullYear() + 1, 0, 1);
-  const daysInYear = Math.round((yearEnd - new Date(now.getFullYear(), 0, 1)) / 86400000);
+  const daysInYear = Math.round(
+    (yearEnd - new Date(now.getFullYear(), 0, 1)) / 86400000,
+  );
   $("#greeting").textContent = getGreeting(hour, dayOfYear);
-  
-  const formatter = new Intl.DateTimeFormat([], { hour: "numeric", minute: "2-digit" });
+
+  const formatter = new Intl.DateTimeFormat([], {
+    hour: "numeric",
+    minute: "2-digit",
+  });
   const parts = formatter.formatToParts(now);
   let hourStr = "";
   let minStr = "";
@@ -157,16 +191,30 @@ function updateTime() {
     if (minEl.textContent !== minStr) minEl.textContent = minStr;
     if (periodEl) {
       const formattedPeriod = periodStr ? ` ${periodStr}` : "";
-      if (periodEl.textContent !== formattedPeriod) periodEl.textContent = formattedPeriod;
+      if (periodEl.textContent !== formattedPeriod)
+        periodEl.textContent = formattedPeriod;
     }
   } else {
     $("#clock").textContent = formatter.format(now);
   }
 
-  $("#date").textContent = new Intl.DateTimeFormat([], { weekday: "long", month: "long", day: "numeric" }).format(now);
+  $("#date").textContent = new Intl.DateTimeFormat([], {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  }).format(now);
   $("#year").textContent = now.getFullYear();
   $("#day-of-year").textContent = String(dayOfYear).padStart(3, "0");
   $("#days-left").textContent = daysInYear - dayOfYear;
+  const nextMidnight = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate() + 1,
+  );
+  const msLeft = nextMidnight - now;
+  const pad2 = (n) => String(n).padStart(2, "0");
+  $("#time-left").textContent =
+    `${pad2(Math.floor(msLeft / 3600000))}h ${pad2(Math.floor((msLeft % 3600000) / 60000))}m ${pad2(Math.floor((msLeft % 60000) / 1000))}s`;
   $("#quote").textContent = quotes[now.getDate() % quotes.length][0];
   renderYearDots(dayOfYear, daysInYear);
 }
@@ -176,9 +224,16 @@ function renderYearDots(dayOfYear, daysInYear) {
   if (!dots || dots.dataset.day === String(dayOfYear)) return;
   dots.dataset.day = String(dayOfYear);
   dots.innerHTML = Array.from({ length: daysInYear }, (_, index) => {
-    const classes = [index < dayOfYear ? "is-complete" : "", index === dayOfYear - 1 ? "is-today" : ""].filter(Boolean).join(" ");
+    const classes = [
+      index < dayOfYear ? "is-complete" : "",
+      index === dayOfYear - 1 ? "is-today" : "",
+    ]
+      .filter(Boolean)
+      .join(" ");
     return `<i class="${classes}" aria-hidden="true"></i>`;
   }).join("");
+  // Inform snake renderer that the grid was rebuilt (SVG re-attachment + coord refresh).
+  if (window.SnakeRenderer) SnakeRenderer.notify(dots, dayOfYear);
 }
 
 function moduleMarkup(id) {
@@ -198,9 +253,12 @@ function moduleMarkup(id) {
   if (id === "links") {
     return `<article class="module" data-id="links" draggable="${editing}">${handle}
       <p class="module-title">${title}</p>
-      <nav class="links-grid" aria-label="Quick links">${state.links.map(link =>
-        `<a class="link-chip" href="${safeUrl(link.url)}">${escapeHtml(link.name)}</a>`
-      ).join("")}</nav>
+      <nav class="links-grid" aria-label="Quick links">${state.links
+        .map(
+          (link) =>
+            `<a class="link-chip" href="${safeUrl(link.url)}">${escapeHtml(link.name)}</a>`,
+        )
+        .join("")}</nav>
     </article>`;
   }
 
@@ -214,7 +272,15 @@ function moduleMarkup(id) {
 
   if (id === "goal") {
     const DAY_LABELS = ["M", "T", "W", "T", "F", "S", "S"];
-    const DAY_NAMES  = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+    const DAY_NAMES = [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday",
+    ];
     const filledCount = state.momentumDays.filter(Boolean).length;
     const dots = DAY_LABELS.map((label, i) => {
       const filled = state.momentumDays[i];
@@ -235,34 +301,99 @@ function moduleMarkup(id) {
 }
 
 function render() {
-  dashboard.innerHTML = state.order.filter(id => state.visible[id]).map(moduleMarkup).join("");
+  dashboard.innerHTML = state.order
+    .filter((id) => state.visible[id])
+    .map(moduleMarkup)
+    .join("");
   renderToggles();
   document.documentElement.dataset.accent = state.accent;
   document.body.classList.toggle("is-editing", editing);
-  document.querySelectorAll(".engine-choice").forEach(button => button.classList.toggle("is-selected", button.dataset.engine === state.searchEngine));
+  document
+    .querySelectorAll(".engine-choice")
+    .forEach((button) =>
+      button.classList.toggle(
+        "is-selected",
+        button.dataset.engine === state.searchEngine,
+      ),
+    );
   bindModuleEvents();
 }
 
 function renderToggles() {
-  $("#module-toggles").innerHTML = state.order.map(id => `<label class="toggle-row"><span>${moduleNames[id]}</span><input type="checkbox" data-module-toggle="${id}" ${state.visible[id] ? "checked" : ""} /></label>`).join("");
-  document.querySelectorAll(".swatch").forEach(button => button.classList.toggle("is-selected", button.dataset.accent === state.accent));
+  $("#module-toggles").innerHTML = state.order
+    .map(
+      (id) =>
+        `<label class="toggle-row"><span>${moduleNames[id]}</span><input type="checkbox" data-module-toggle="${id}" ${state.visible[id] ? "checked" : ""} /></label>`,
+    )
+    .join("");
+  document
+    .querySelectorAll(".swatch")
+    .forEach((button) =>
+      button.classList.toggle(
+        "is-selected",
+        button.dataset.accent === state.accent,
+      ),
+    );
+  // Sync snake settings controls.
+  const snakeEnabledEl = $("#snake-enabled");
+  if (snakeEnabledEl) {
+    snakeEnabledEl.checked = !!state.snake.enabled;
+    const sub = $("#snake-subcontrols");
+    if (sub) sub.hidden = !state.snake.enabled;
+  }
+  document.querySelectorAll('[name="snake-speed"]').forEach((r) => {
+    r.checked = r.value === state.snake.speed;
+  });
+  const regrowEl = $("#snake-regrow");
+  if (regrowEl) regrowEl.checked = !!state.snake.regrow;
+}
+
+/** Starts or stops SnakeRenderer based on current state.snake settings. */
+function applySnakeRenderer() {
+  if (!window.SnakeRenderer) return;
+  const dots = $("#year-dots");
+  const now = new Date();
+  const dayOfYear = Math.floor(
+    (now - new Date(now.getFullYear(), 0, 0)) / 86400000,
+  );
+  if (isFeatureUnlocked("snake") && state.snake.enabled) {
+    SnakeRenderer.setup(dots, dayOfYear, state.snake);
+  } else {
+    SnakeRenderer.teardown();
+  }
 }
 
 function bindModuleEvents() {
   const focusInput = $("#focus-input");
-  if (focusInput) focusInput.addEventListener("change", () => { state.focus = focusInput.value.trim() || DEFAULTS.focus; save("Focus updated"); render(); });
+  if (focusInput)
+    focusInput.addEventListener("change", () => {
+      state.focus = focusInput.value.trim() || DEFAULTS.focus;
+      save("Focus updated");
+      render();
+    });
 
   const focusNoteInput = $("#focus-note-input");
-  if (focusNoteInput) focusNoteInput.addEventListener("change", () => { state.focusNote = focusNoteInput.value.trim(); save("Note updated"); render(); });
+  if (focusNoteInput)
+    focusNoteInput.addEventListener("change", () => {
+      state.focusNote = focusNoteInput.value.trim();
+      save("Note updated");
+      render();
+    });
 
   const nowInput = $("#now-input");
   const nowCopy = $("#now-copy");
   if (nowInput) {
-    nowInput.addEventListener("input", () => { if (nowCopy) nowCopy.textContent = nowInput.value; });
-    nowInput.addEventListener("change", () => { state.now = nowInput.value.trim() || DEFAULTS.now; save("Now updated"); render(); });
+    nowInput.addEventListener("input", () => {
+      if (nowCopy) nowCopy.textContent = nowInput.value;
+    });
+    nowInput.addEventListener("change", () => {
+      state.now = nowInput.value.trim() || DEFAULTS.now;
+      save("Now updated");
+      render();
+    });
   }
 
-  dashboard.querySelectorAll(".momentum-dot").forEach(btn => {
+  dashboard.querySelectorAll(".momentum-dot").forEach((btn) => {
     btn.addEventListener("click", () => {
       const day = parseInt(btn.dataset.day, 10);
       state.momentumDays[day] = !state.momentumDays[day];
@@ -271,17 +402,26 @@ function bindModuleEvents() {
     });
   });
 
-  dashboard.querySelectorAll(".module").forEach(module => {
-    module.addEventListener("dragstart", () => { draggedId = module.dataset.id; module.classList.add("dragging"); });
-    module.addEventListener("dragend", () => { draggedId = null; module.classList.remove("dragging"); });
-    module.addEventListener("dragover", event => event.preventDefault());
-    module.addEventListener("drop", event => {
+  dashboard.querySelectorAll(".module").forEach((module) => {
+    module.addEventListener("dragstart", () => {
+      draggedId = module.dataset.id;
+      module.classList.add("dragging");
+    });
+    module.addEventListener("dragend", () => {
+      draggedId = null;
+      module.classList.remove("dragging");
+    });
+    module.addEventListener("dragover", (event) => event.preventDefault());
+    module.addEventListener("drop", (event) => {
       event.preventDefault();
       const targetId = module.dataset.id;
       if (!draggedId || draggedId === targetId) return;
-      const from = state.order.indexOf(draggedId), to = state.order.indexOf(targetId);
-      state.order.splice(from, 1); state.order.splice(to, 0, draggedId);
-      save("Layout updated"); render();
+      const from = state.order.indexOf(draggedId),
+        to = state.order.indexOf(targetId);
+      state.order.splice(from, 1);
+      state.order.splice(to, 0, draggedId);
+      save("Layout updated");
+      render();
     });
   });
 }
@@ -292,22 +432,68 @@ function toggleEditor(force) {
   $("#editor").setAttribute("aria-hidden", String(!editing));
   $("#scrim").hidden = !editing;
   $("#edit-toggle").setAttribute("aria-pressed", String(editing));
-  $("#edit-toggle").setAttribute("aria-label", editing ? "Finish customizing dashboard" : "Customize dashboard");
+  $("#edit-toggle").setAttribute(
+    "aria-label",
+    editing ? "Finish customizing dashboard" : "Customize dashboard",
+  );
   render();
 }
 
-function safeUrl(value) { try { const url = new URL(value); return ["http:", "https:"].includes(url.protocol) ? url.href : "#"; } catch { return "#"; } }
-function escapeHtml(value) { const node = document.createElement("div"); node.textContent = value; return node.innerHTML; }
+function safeUrl(value) {
+  try {
+    const url = new URL(value);
+    return ["http:", "https:"].includes(url.protocol) ? url.href : "#";
+  } catch {
+    return "#";
+  }
+}
+function escapeHtml(value) {
+  const node = document.createElement("div");
+  node.textContent = value;
+  return node.innerHTML;
+}
 
 $("#edit-toggle").addEventListener("click", () => toggleEditor());
 $("#close-editor").addEventListener("click", () => toggleEditor(false));
 $("#scrim").addEventListener("click", () => toggleEditor(false));
-$("#module-toggles").addEventListener("change", event => { if (!event.target.matches("[data-module-toggle]")) return; state.visible[event.target.dataset.moduleToggle] = event.target.checked; save("Modules updated"); render(); });
-$(".swatches").addEventListener("click", event => { const button = event.target.closest("[data-accent]"); if (!button) return; state.accent = button.dataset.accent; save("Accent updated"); render(); });
-$("#link-form").addEventListener("submit", event => { event.preventDefault(); const name = $("#link-name").value.trim(), url = $("#link-url").value.trim(); if (!name || safeUrl(url) === "#") return; state.links.push({ name, url }); event.target.reset(); save("Link added"); render(); });
-$("#reset-button").addEventListener("click", () => { state = structuredClone(DEFAULTS); save("Starter layout restored"); render(); });
-$(".engine-row").addEventListener("click", event => { const button = event.target.closest("[data-engine]"); if (!button) return; state.searchEngine = button.dataset.engine; save(`${button.textContent.trim()} selected`); render(); });
-$("#search-form").addEventListener("submit", event => {
+$("#module-toggles").addEventListener("change", (event) => {
+  if (!event.target.matches("[data-module-toggle]")) return;
+  state.visible[event.target.dataset.moduleToggle] = event.target.checked;
+  save("Modules updated");
+  render();
+});
+$(".swatches").addEventListener("click", (event) => {
+  const button = event.target.closest("[data-accent]");
+  if (!button) return;
+  state.accent = button.dataset.accent;
+  save("Accent updated");
+  render();
+});
+$("#link-form").addEventListener("submit", (event) => {
+  event.preventDefault();
+  const name = $("#link-name").value.trim(),
+    url = $("#link-url").value.trim();
+  if (!name || safeUrl(url) === "#") return;
+  state.links.push({ name, url });
+  event.target.reset();
+  save("Link added");
+  render();
+});
+$("#reset-button").addEventListener("click", () => {
+  state = structuredClone(DEFAULTS);
+  state.snake = { enabled: false, speed: "slow", regrow: true };
+  save("Starter layout restored");
+  render();
+  applySnakeRenderer();
+});
+$(".engine-row").addEventListener("click", (event) => {
+  const button = event.target.closest("[data-engine]");
+  if (!button) return;
+  state.searchEngine = button.dataset.engine;
+  save(`${button.textContent.trim()} selected`);
+  render();
+});
+$("#search-form").addEventListener("submit", (event) => {
   event.preventDefault();
   const query = $("#search-input").value.trim();
   if (!query) return;
@@ -316,9 +502,31 @@ $("#search-form").addEventListener("submit", event => {
     google: "https://www.google.com/search?q=",
     duckduckgo: "https://duckduckgo.com/?q=",
     bing: "https://www.bing.com/search?q=",
-    brave: "https://search.brave.com/search?q="
+    brave: "https://search.brave.com/search?q=",
   };
-  window.location.assign(`${engines[state.searchEngine] || engines.default}${encodeURIComponent(query)}`);
+  window.location.assign(
+    `${engines[state.searchEngine] || engines.default}${encodeURIComponent(query)}`,
+  );
+});
+
+// ---- Snake settings event listeners --------------------------------
+$("#snake-enabled").addEventListener("change", function () {
+  state.snake.enabled = this.checked;
+  $("#snake-subcontrols").hidden = !this.checked;
+  save("Snake updated");
+  applySnakeRenderer();
+});
+document.querySelectorAll('[name="snake-speed"]').forEach((r) => {
+  r.addEventListener("change", function () {
+    state.snake.speed = this.value;
+    save("Speed updated");
+    applySnakeRenderer();
+  });
+});
+$("#snake-regrow").addEventListener("change", function () {
+  state.snake.regrow = this.checked;
+  save("Regrow updated");
+  // regrow takes effect at the start of the next cycle; no re-setup needed.
 });
 
 updateTime();

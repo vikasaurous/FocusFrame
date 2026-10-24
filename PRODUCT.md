@@ -53,3 +53,35 @@ No existing assets, product data, testimonials, integrations, or brand system ha
 ## Accessibility & Inclusion
 
 Support keyboard navigation, visible focus states, readable contrast, semantic controls, and reduced-motion preferences.
+
+## Snake Visual Mode
+
+### What it is
+
+An optional animation that makes a snake travel across the 365-day dot calendar in the page header. The snake moves through dots representing days that have already passed this year, "eating" them as it goes. When it has consumed all finished-day dots it pauses briefly, the eaten dots fade back in, and the cycle restarts.
+
+### Decorative only
+
+The snake is purely visual. It never writes to storage, never modifies the calendar data, and has no effect on any other module. Disabling it returns the calendar to its normal static appearance instantly.
+
+### Data and privacy
+
+No personal data is collected, transmitted, or stored as a result of this feature. The snake's position is not persisted between sessions — it always restarts fresh. The only stored values are the three user preferences (enabled, speed, regrow), saved alongside all other FocusFrame settings in Chrome local storage on the user's own device.
+
+### Controls (Customize panel → Year dot snake)
+
+| Setting | Options | Default |
+|---|---|---|
+| Animate finished days | On / Off | Off |
+| Speed | Slow · Medium · Fast | Slow |
+| Regrow after cycle | On / Off | On |
+
+### Accessibility
+
+- Snake visuals are `aria-hidden`; the calendar's existing text alternative ("Calendar progress through the current year") is unchanged.
+- When `prefers-reduced-motion` is set the snake is placed statically once with no tick loop, even if the user has enabled it.
+- All controls in the settings panel have proper labels and are keyboard-navigable.
+
+### Premium plan (future)
+
+Snake Visual Mode is planned as a premium feature. The codebase contains a single `isFeatureUnlocked("snake")` gate in `newtab.js` that currently always returns `true`. No payment, licensing, or network code exists. Billing integration will only require updating that one function.

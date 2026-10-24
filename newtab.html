@@ -1,95 +1,136 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FocusFrame</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100;200;300;400&family=Instrument+Serif:ital@0;1&display=swap" />
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <main class="frame">
-      <header class="topbar">
-        <a class="wordmark" href="#" aria-label="FocusFrame home">focus<span>frame</span></a>
-        <div class="topbar-actions">
-          <span id="status" class="status" aria-live="polite">Your space is saved locally</span>
-          <button class="icon-button" id="edit-toggle" type="button" aria-pressed="false" aria-label="Customize dashboard">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9"/><path d="M19.5 2.5 21.5 4.5 13 13l-3.5.5.5-3.5z"/></svg>
-          </button>
-        </div>
-      </header>
 
-      <section class="opening" aria-label="Current time and intention">
-        <p id="greeting" class="greeting"></p>
-        <time id="clock" class="clock"><span id="clock-hour"></span><span class="clock-colon" aria-hidden="true">:</span><span id="clock-minute"></span><span id="clock-period"></span></time>
-        <div class="calendar-signal" aria-label="Calendar progress through the current year">
-          <div class="date-readout">
-            <p id="date" class="date"></p>
-            <p class="year-readout"><span id="year"></span> · day <span id="day-of-year"></span></p>
-          </div>
-          <div class="year-dots" id="year-dots" aria-hidden="true"></div>
-          <p class="days-left"><span id="days-left"></span> days left this year</p>
-        </div>
-        <blockquote id="quote" class="quote"></blockquote>
-      </section>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>New Tab</title>
+  <link rel="shortcut icon" href="icons/favicon.ico" type="image/x-icon">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100;200;300;400&family=Instrument+Serif:ital@0;1&display=swap" />
+  <link href="https://fonts.googleapis.com/css2?family=Geist+Pixel&display=swap" rel="stylesheet">
 
-      <section class="search-area" aria-label="Web search">
-        <form class="search-console" id="search-form">
-          <label class="sr-only" for="search-input">Search the web</label>
-          <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.4"/><path d="m16 16 4.5 4.5"/></svg>
-          <input id="search-input" type="search" autocomplete="off" placeholder="Search the web" />
-          <button type="submit">Search</button>
-        </form>
-        <div class="engine-row" role="group" aria-label="Choose search engine">
-          <span class="engine-label">Search with</span>
-          <button class="engine-choice" data-engine="default" type="button"><b>O</b> Default</button>
-          <button class="engine-choice" data-engine="google" type="button"><b>G</b> Google</button>
-          <button class="engine-choice" data-engine="duckduckgo" type="button"><b>D</b> DuckDuckGo</button>
-          <button class="engine-choice" data-engine="bing" type="button"><b>B</b> Bing</button>
-          <button class="engine-choice" data-engine="brave" type="button"><b>B</b> Brave</button>
-        </div>
-      </section>
+  <link rel="stylesheet" href="styles.css" />
+</head>
 
-      <section class="dashboard" id="dashboard" aria-label="Your dashboard modules"></section>
-    </main>
-
-    <aside class="editor" id="editor" aria-label="Customize FocusFrame" aria-hidden="true">
-      <div class="editor-head">
-        <div>
-          <p class="editor-label">MAKE IT YOURS</p>
-          <h1>Customize your frame</h1>
-        </div>
-        <button class="icon-button" id="close-editor" type="button" aria-label="Close customization panel">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+<body>
+  <main class="frame">
+    <header class="topbar">
+      <a class="wordmark" href="#" aria-label="FocusFrame home">focus<span>frame</span></a>
+      <div class="topbar-actions">
+        <span id="status" class="status" aria-live="polite">Your space is saved locally</span>
+        <button class="icon-button" id="edit-toggle" type="button" aria-pressed="false"
+          aria-label="Customize dashboard">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 3a9 9 0 1 0 9 9" />
+            <path d="M19.5 2.5 21.5 4.5 13 13l-3.5.5.5-3.5z" />
+          </svg>
         </button>
       </div>
-      <p class="editor-intro">Choose what appears here. In edit mode, drag modules into the order that feels right.</p>
-      <div class="editor-section">
-        <h2>Visible modules</h2>
-        <div id="module-toggles" class="module-toggles"></div>
-      </div>
-      <div class="editor-section">
-        <h2>Accent color</h2>
-        <div class="swatches" role="group" aria-label="Choose accent color">
-          <button class="swatch coral" data-accent="coral" aria-label="Coral"></button>
-          <button class="swatch cobalt" data-accent="cobalt" aria-label="Cobalt"></button>
-          <button class="swatch moss" data-accent="moss" aria-label="Moss"></button>
-          <button class="swatch plum" data-accent="plum" aria-label="Plum"></button>
+    </header>
+
+    <section class="opening" aria-label="Current time and intention">
+      <p id="greeting" class="greeting"></p>
+      <time id="clock" class="clock"><span id="clock-hour"></span><span class="clock-colon"
+          aria-hidden="true">:</span><span id="clock-minute"></span><span id="clock-period"></span></time>
+      <div class="calendar-signal" aria-label="Calendar progress through the current year">
+        <div class="date-readout">
+          <p id="date" class="date"></p>
+          <p class="year-readout"><span id="year"></span> · day <span id="day-of-year"></span></p>
         </div>
+        <div class="year-dots" id="year-dots" aria-hidden="true"></div>
+        <p class="days-left"><span id="days-left"></span> days left this year<span class="time-left" id="time-left"
+            role="timer"></span></p>
       </div>
-      <div class="editor-section">
-        <h2>Quick links</h2>
-        <form id="link-form" class="link-form">
-          <label><span>Name</span><input id="link-name" required maxlength="20" placeholder="Notion" /></label>
-          <label><span>URL</span><input id="link-url" required type="url" placeholder="https://..." /></label>
-          <button class="solid-button" type="submit">Add link</button>
-        </form>
+      <blockquote id="quote" class="quote"></blockquote>
+    </section>
+
+    <section class="search-area" aria-label="Web search">
+      <form class="search-console" id="search-form">
+        <label class="sr-only" for="search-input">Search the web</label>
+        <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="10.8" cy="10.8" r="6.4" />
+          <path d="m16 16 4.5 4.5" />
+        </svg>
+        <input id="search-input" type="search" autocomplete="off" placeholder="Search the web" />
+        <button type="submit">Search</button>
+      </form>
+      <div class="engine-row" role="group" aria-label="Choose search engine">
+        <span class="engine-label">Search with</span>
+        <button class="engine-choice" data-engine="default" type="button"><b>O</b> Default</button>
+        <button class="engine-choice" data-engine="google" type="button"><b>G</b> Google</button>
+        <button class="engine-choice" data-engine="duckduckgo" type="button"><b>D</b> DuckDuckGo</button>
+        <button class="engine-choice" data-engine="bing" type="button"><b>B</b> Bing</button>
+        <button class="engine-choice" data-engine="brave" type="button"><b>B</b> Brave</button>
       </div>
-      <button id="reset-button" class="text-button" type="button">Reset to starter layout</button>
-    </aside>
-    <div class="scrim" id="scrim" hidden></div>
-    <script src="newtab.js"></script>
-  </body>
+    </section>
+
+    <section class="dashboard" id="dashboard" aria-label="Your dashboard modules"></section>
+  </main>
+
+  <aside class="editor" id="editor" aria-label="Customize FocusFrame" aria-hidden="true">
+    <div class="editor-head">
+      <div>
+        <p class="editor-label">MAKE IT YOURS</p>
+        <h1>Customize your frame</h1>
+      </div>
+      <button class="icon-button" id="close-editor" type="button" aria-label="Close customization panel">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="m6 6 12 12M18 6 6 18" />
+        </svg>
+      </button>
+    </div>
+    <p class="editor-intro">Choose what appears here. In edit mode, drag modules into the order that feels right.</p>
+    <div class="editor-section">
+      <h2>Visible modules</h2>
+      <div id="module-toggles" class="module-toggles"></div>
+    </div>
+    <div class="editor-section">
+      <h2>Accent color</h2>
+      <div class="swatches" role="group" aria-label="Choose accent color">
+        <button class="swatch coral" data-accent="coral" aria-label="Coral"></button>
+        <button class="swatch cobalt" data-accent="cobalt" aria-label="Cobalt"></button>
+        <button class="swatch moss" data-accent="moss" aria-label="Moss"></button>
+        <button class="swatch plum" data-accent="plum" aria-label="Plum"></button>
+      </div>
+    </div>
+    <div class="editor-section" id="snake-section">
+      <h2>Year dot snake <span class="feature-badge">Visual</span></h2>
+      <label class="toggle-row">
+        <span id="snake-enabled-label">Animate finished days</span>
+        <input type="checkbox" id="snake-enabled" aria-labelledby="snake-enabled-label" />
+      </label>
+      <div id="snake-subcontrols" hidden>
+        <fieldset class="snake-speed-fieldset">
+          <legend>Speed</legend>
+          <div class="snake-speed-choices" role="group">
+            <label class="speed-option"><input type="radio" name="snake-speed" value="slow" /> Slow</label>
+            <label class="speed-option"><input type="radio" name="snake-speed" value="medium" /> Medium</label>
+            <label class="speed-option"><input type="radio" name="snake-speed" value="fast" /> Fast</label>
+          </div>
+        </fieldset>
+        <label class="toggle-row" style="margin-top:12px">
+          <span id="snake-regrow-label">Regrow after cycle</span>
+          <input type="checkbox" id="snake-regrow" aria-labelledby="snake-regrow-label" />
+        </label>
+      </div>
+    </div>
+    <div class="editor-section">
+      <h2>Quick links</h2>
+      <form id="link-form" class="link-form">
+        <label><span>Name</span><input id="link-name" required maxlength="20" placeholder="Notion" /></label>
+        <label><span>URL</span><input id="link-url" required type="url" placeholder="https://..." /></label>
+        <button class="solid-button" type="submit">Add link</button>
+      </form>
+    </div>
+    <button id="reset-button" class="text-button" type="button">Reset to starter layout</button>
+  </aside>
+  <div class="scrim" id="scrim" hidden></div>
+  <script src="src/snake/snakeEngine.js"></script>
+  <script src="src/snake/snakeRenderer.js"></script>
+  <script src="newtab.js"></script>
+</body>
+
 </html>
