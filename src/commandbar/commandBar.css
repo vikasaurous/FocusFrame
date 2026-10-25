@@ -127,8 +127,8 @@
   flex: none;
   display: grid;
   place-items: center;
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   color: #0d0e0f;
   border-radius: 50%;
   background: var(--accent);
@@ -136,6 +136,30 @@
   font-size: 0.7rem;
   font-weight: 800;
   line-height: 1;
+}
+
+/* App logos: dark round badge, logo in its own colors */
+.cb-badge.has-logo {
+  background: #1a1c21;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+.cb-badge.has-logo svg,
+.cb-badge.has-logo img {
+  display: block;
+  width: 62%;
+  height: 62%;
+  object-fit: contain;
+}
+.cb-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+.cb-item .cb-badge {
+  width: 30px;
+  height: 30px;
+  font-size: 0.82rem;
 }
 
 /* ---- Destination pill: where Enter will send ------------------------------- */
