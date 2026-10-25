@@ -13,12 +13,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Geist+Pixel&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="src/commandbar/commandBar.css" />
 </head>
 
 <body>
   <main class="frame">
     <header class="topbar">
       <a class="wordmark" href="#" aria-label="FocusFrame home">focus<span>frame</span></a>
+      <p class="cb-teaser" id="cb-teaser" aria-hidden="true" hidden>
+        Press <kbd id="cb-teaser-key"></kbd> to ask anything
+      </p>
       <div class="topbar-actions">
         <span id="status" class="status" aria-live="polite">Your space is saved locally</span>
         <button class="icon-button" id="edit-toggle" type="button" aria-pressed="false"
@@ -130,6 +134,9 @@
   <div class="scrim" id="scrim" hidden></div>
   <script src="src/snake/snakeEngine.js"></script>
   <script src="src/snake/snakeRenderer.js"></script>
+  <script src="src/commandbar/commands.js"></script>
+  <script src="src/commandbar/ripple.js"></script>
+  <script src="src/commandbar/commandBar.js"></script>
   <script src="newtab.js"></script>
 </body>
 
