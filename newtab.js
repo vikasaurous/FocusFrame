@@ -132,16 +132,43 @@ async function load() {
   state.visible = { ...DEFAULTS.visible, ...(savedData.visible || {}) };
   state.links = savedData.links || DEFAULTS.links;
   state.momentumDays = savedData.momentumDays || DEFAULTS.momentumDays;
-  // Merge snake settings with safe defaults (Step 5 adds the settings UI).
+  // Merge snake settings with safe defaults.
   state.snake = {
     enabled: false,
     speed: "slow",
     regrow: true,
     ...(savedData.snake || {}),
   };
+  // Command bar settings with safe defaults.
+  state.commandBar = FFCommands.mergeSettings(savedData.commandBar);
   document.documentElement.dataset.accent = state.accent;
   render();
   applySnakeRenderer();
+  if (window.CommandBar) {
+    CommandBar.init({
+      settings: state.commandBar,
+      onChange(next) {
+        state.commandBar = next;
+        updateTeaser();
+        save("Command bar updated");
+      },
+    });
+  }
+  updateTeaser();
+}
+
+// Small "Press Alt + K" hint at the top center.
+function updateTeaser() {
+  const teaser = $("#cb-teaser");
+  if (!teaser) return;
+  const cb = state.commandBar;
+  teaser.hidden = !(window.CommandBar && cb && cb.enabled);
+  if (teaser.hidden) return;
+  const isMac = /Mac|iPhone|iPad/.test(navigator.platform || "");
+  $("#cb-teaser-key").textContent = FFCommands.formatShortcut(
+    cb.shortcut,
+    isMac,
+  );
 }
 
 function save(message = "Saved") {
@@ -482,9 +509,12 @@ $("#link-form").addEventListener("submit", (event) => {
 $("#reset-button").addEventListener("click", () => {
   state = structuredClone(DEFAULTS);
   state.snake = { enabled: false, speed: "slow", regrow: true };
+  state.commandBar = FFCommands.mergeSettings(null);
   save("Starter layout restored");
   render();
   applySnakeRenderer();
+  if (window.CommandBar) CommandBar.setSettings(state.commandBar);
+  updateTeaser();
 });
 $(".engine-row").addEventListener("click", (event) => {
   const button = event.target.closest("[data-engine]");

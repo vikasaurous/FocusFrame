@@ -72,6 +72,7 @@ a:focus-visible {
   padding: 25px 0 54px;
 }
 .topbar {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -936,7 +937,7 @@ body.is-editing .drag-handle {
   align-items: center;
   gap: 6px;
   color: var(--soft);
-  font-family: Bahnschrift, "Segoe UI", sans-serif;
+  font-family: "Jetbrains Mono", "Segoe UI", sans-serif;
   font-size: 0.78rem;
   cursor: pointer;
 }
@@ -951,4 +952,41 @@ body.is-editing .drag-handle {
   color: var(--paper);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
+}
+
+/* Command bar teaser: top center, quiet until hovered */
+.cb-teaser {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  padding: 4px 10px;
+  color: var(--muted);
+  opacity: 0.5;
+  pointer-events: none;
+  font-family: "Jetbrains Mono", "Segoe UI", sans-serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.cb-teaser[hidden] {
+  display: none;
+}
+
+.cb-teaser kbd {
+  margin: 0 3px;
+  padding: 2px 7px;
+  color: var(--soft);
+  border: 1px solid #414449;
+  border-radius: 6px;
+  background: #26292d;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 0.66rem;
+}
+@media (max-width: 900px) {
+  .cb-teaser {
+    display: none;
+  }
 }

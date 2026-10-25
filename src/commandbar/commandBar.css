@@ -1,0 +1,546 @@
+/* commandBar.css  (v4: destination pill, footer key hints, richer slash list)
+ * Theme vars: --panel --panel-hover --paper --soft --muted --line --accent --focus
+ *
+ * Open/close = CSS transitions on .cb-open (transform only, no fade)
+ *   slide UP   .6s  cubic-bezier(.22, 1, .36, 1)  soft landing
+ *   slide DOWN .4s  cubic-bezier(.32, 0, .67, 0)  gentle ease-in exit
+ */
+
+/* ---- Root: always in the DOM, hidden by visibility when closed ---------- */
+.cb-root {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  visibility: hidden;
+  pointer-events: none;
+  transition: visibility 0s linear 0.42s; /* hide AFTER the slide-down ends */
+}
+.cb-root.cb-open {
+  visibility: visible;
+  pointer-events: auto;
+  transition-delay: 0s;
+}
+
+/* Page behind: dimmed and blurred so the bar is the only thing in focus */
+.cb-scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(4, 5, 6, 0.4);
+  backdrop-filter: blur(10px) brightness(0.6);
+  opacity: 0;
+  transition: opacity 0.42s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.cb-root.cb-open .cb-scrim {
+  opacity: 1;
+  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Ocean waves (drawn by ripple.js) */
+.cb-water {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* ---- Panel (transparent holder that slides) ------------------------------ */
+.cb-panel {
+  position: absolute;
+  left: 50%;
+  bottom: max(56px, env(safe-area-inset-bottom));
+  width: min(700px, calc(100% - 32px));
+  /* parked below the screen; 140px clears the glow too */
+  transform: translate3d(-50%, calc(100% + 140px), 0);
+  /* slide DOWN: gentle ease-in, no fade */
+  transition: transform 0.4s cubic-bezier(0.32, 0, 0.67, 0);
+  will-change: transform;
+}
+.cb-root.cb-open .cb-panel {
+  transform: translate3d(-50%, 0, 0);
+  /* slide UP: fast start, long soft landing, no fade, no delay */
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ---- The box: glass panel with an accent glow ------------------------------ */
+.cb-box {
+  --cb-glow: color-mix(in srgb, var(--accent) 55%, transparent);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid color-mix(in srgb, var(--accent) 42%, transparent);
+  border-radius: 22px;
+  background: linear-gradient(180deg, #181a1f, #0d0e11);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 0 0 1px color-mix(in srgb, var(--accent) 8%, transparent),
+    0 12px 44px color-mix(in srgb, var(--accent) 16%, transparent),
+    0 30px 80px rgba(0, 0, 0, 0.6);
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+/* glowing edge lines at the top and bottom center */
+.cb-box::before,
+.cb-box::after {
+  content: "";
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  box-shadow: 0 0 10px 0 var(--cb-glow);
+  opacity: 0.75;
+  transition: opacity 0.25s ease;
+}
+.cb-box::before {
+  top: -1px;
+}
+.cb-box::after {
+  bottom: -1px;
+}
+.cb-box:focus-within {
+  border-color: color-mix(in srgb, var(--accent) 75%, transparent);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 0 0 1px color-mix(in srgb, var(--accent) 14%, transparent),
+    0 12px 52px color-mix(in srgb, var(--accent) 26%, transparent),
+    0 30px 80px rgba(0, 0, 0, 0.6);
+}
+.cb-box:focus-within::before,
+.cb-box:focus-within::after {
+  opacity: 1;
+}
+
+/* Top row: destination pill, text, send button */
+.cb-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 66px;
+  padding: 14px 14px 12px 16px;
+}
+
+/* ---- Letter badge (used in the pill and the slash list) -------------------- */
+.cb-badge {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  color: #0d0e0f;
+  border-radius: 50%;
+  background: var(--accent);
+  font-family: Bahnschrift, "Segoe UI", sans-serif;
+  font-size: 0.7rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+/* App logos: dark round badge, logo in its own colors */
+.cb-badge.has-logo {
+  background: #1a1c21;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+.cb-badge.has-logo svg,
+.cb-badge.has-logo img {
+  display: block;
+  width: 62%;
+  height: 62%;
+  object-fit: contain;
+}
+.cb-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+.cb-item .cb-badge {
+  width: 30px;
+  height: 30px;
+  font-size: 0.82rem;
+}
+
+/* ---- Destination pill: where Enter will send ------------------------------- */
+.cb-dest {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 34px;
+  padding: 0 12px 0 6px;
+  color: var(--soft);
+  cursor: pointer;
+  border: 1px solid #343840;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  font: inherit;
+  font-family: Bahnschrift, "Segoe UI", sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease,
+    color 0.2s ease;
+}
+.cb-dest:hover {
+  color: var(--paper);
+  border-color: color-mix(in srgb, var(--accent) 50%, transparent);
+}
+.cb-dest:focus-visible,
+.cb-send:focus-visible,
+.cb-select:focus-visible,
+.cb-keybtn:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+.cb-dest.is-chip {
+  color: var(--paper);
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+}
+.cb-dest-name {
+  white-space: nowrap;
+}
+.cb-dest-caret {
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 1px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  opacity: 0.7;
+  transform: rotate(45deg);
+}
+.cb-dest-x {
+  margin: -1px 0 0 1px;
+  opacity: 0.7;
+  font-size: 1.05rem;
+  font-weight: 400;
+  line-height: 1;
+}
+
+/* ---- Text input -------------------------------------------------------------- */
+.cb-input {
+  flex: 1;
+  min-width: 0;
+  min-height: 36px;
+  max-height: 180px;
+  padding: 7px 0;
+  resize: none;
+  color: var(--paper);
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font: inherit;
+  font-size: 1.02rem;
+  line-height: 1.35;
+  overflow-y: auto;
+}
+.cb-input::placeholder {
+  color: var(--soft);
+  opacity: 0.5;
+}
+
+/* ---- Send button: accent circle with an up arrow ---------------------------- */
+.cb-send {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  color: #0d0e0f;
+  cursor: pointer;
+  border: 0;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--accent) 35%, transparent);
+  transition:
+    transform 0.15s ease,
+    filter 0.2s ease,
+    opacity 0.2s ease;
+}
+.cb-send svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.cb-send:hover {
+  filter: brightness(1.1);
+  transform: scale(1.06);
+}
+.cb-send:active {
+  transform: scale(0.95);
+}
+/* dimmed while there is nothing to send */
+.cb-input:placeholder-shown ~ .cb-send {
+  opacity: 0.35;
+  box-shadow: none;
+}
+/* a picked destination can be opened with no text */
+.cb-box.has-chip .cb-input:placeholder-shown ~ .cb-send {
+  opacity: 1;
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+/* ---- Footer inside the box: key hints and route ----------------------------- */
+.cb-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 9px 18px 10px 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  color: var(--muted);
+  font-family: Bahnschrift, "Segoe UI", sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.03em;
+}
+.cb-keys {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 16px;
+  min-width: 0;
+}
+.cb-keygroup {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.cb-keylabel {
+  margin-left: 3px;
+}
+.cb-key {
+  min-width: 20px;
+  padding: 2px 6px;
+  color: var(--soft);
+  text-align: center;
+  border: 1px solid #353941;
+  border-bottom-width: 2px;
+  border-radius: 6px;
+  background: #1b1d22;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 0.64rem;
+  line-height: 1.3;
+}
+.cb-route {
+  flex: none;
+  max-width: 45%;
+  overflow: hidden;
+  color: var(--accent);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+.cb-route.is-warn {
+  color: var(--soft);
+  font-weight: 500;
+}
+
+/* ---- Slash list (above the box, only while typing "/") ----------------------- */
+.cb-list {
+  max-height: 300px;
+  scroll-padding: 0 0 48px; /* keeps the active row clear of the sticky footer */
+  margin: 0 0 10px;
+  padding: 6px;
+  overflow-y: auto;
+  list-style: none;
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent);
+  border-radius: 18px;
+  background: #101114;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+}
+.cb-list[hidden] {
+  display: none;
+}
+.cb-group {
+  padding: 10px 12px 6px;
+  color: var(--muted);
+  font-family: Bahnschrift, "Segoe UI", sans-serif;
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.cb-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: 11px;
+  cursor: pointer;
+}
+.cb-item[aria-selected="true"] {
+  background: color-mix(in srgb, var(--accent) 12%, #16181c);
+}
+.cb-item[aria-selected="true"]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 9px;
+  bottom: 9px;
+  width: 3px;
+  border-radius: 3px;
+  background: var(--accent);
+}
+.cb-item-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+.cb-item-label {
+  color: var(--paper);
+  font-size: 0.92rem;
+  font-weight: 500;
+}
+.cb-item-domain {
+  overflow: hidden;
+  color: var(--muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: Bahnschrift, "Segoe UI", sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.03em;
+}
+.cb-item-tag {
+  padding: 2px 8px;
+  color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  border-radius: 999px;
+  font-family: Bahnschrift, "Segoe UI", sans-serif;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.cb-item-alias {
+  min-width: 44px;
+  padding: 3px 8px;
+  color: var(--soft);
+  text-align: center;
+  border: 1px solid #353941;
+  border-bottom-width: 2px;
+  border-radius: 7px;
+  background: #1b1d22;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 0.74rem;
+}
+.cb-list-foot {
+  position: sticky;
+  bottom: -6px;
+  display: flex;
+  gap: 16px;
+  margin: 6px -6px -6px;
+  padding: 9px 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 0 0 17px 17px;
+  background: #101114;
+  color: var(--muted);
+  font-family: Bahnschrift, "Segoe UI", sans-serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.03em;
+}
+
+/* ---- Toast -------------------------------------------------------------------- */
+.cb-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 220px;
+  z-index: 11;
+  max-width: calc(100% - 32px);
+  padding: 10px 16px;
+  color: var(--paper);
+  border: 1px solid #414449;
+  border-radius: 12px;
+  background: var(--panel);
+  transform: translateX(-50%);
+  font-size: 0.85rem;
+}
+.cb-toast[hidden] {
+  display: none;
+}
+
+/* ---- Settings section (Customize panel) ----------------------------------------- */
+.cb-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 12px;
+}
+.cb-select {
+  padding: 7px 10px;
+  color: var(--paper);
+  border: 1px solid #414449;
+  border-radius: 8px;
+  background: #26292d;
+  font: inherit;
+  font-size: 0.85rem;
+}
+.cb-keybtn {
+  padding: 6px 12px;
+  color: var(--paper);
+  cursor: pointer;
+  border: 1px solid #414449;
+  border-radius: 8px;
+  background: #26292d;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 0.78rem;
+}
+.cb-keybtn.is-recording {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.cb-note {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+.cb-note[hidden] {
+  display: none;
+}
+
+/* ---- Small screens: keep keys, drop the words ------------------------------------ */
+@media (max-width: 560px) {
+  .cb-keylabel,
+  .cb-route {
+    display: none;
+  }
+  .cb-dest-name {
+    max-width: 90px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+/* ---- Reduced motion: no slide, no waves, quick fade ------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  .cb-root {
+    transition: visibility 0s linear 0.2s;
+  }
+  .cb-root.cb-open {
+    transition-delay: 0s;
+  }
+  .cb-water {
+    display: none;
+  }
+  .cb-scrim,
+  .cb-root.cb-open .cb-scrim {
+    transition-duration: 0.12s;
+  }
+  .cb-panel,
+  .cb-root.cb-open .cb-panel {
+    transform: translate3d(-50%, 0, 0);
+    transition: none;
+  }
+}
