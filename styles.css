@@ -132,17 +132,19 @@ a:focus-visible {
 .opening {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(420px, 0.9fr);
-  gap: 50px;
-  align-items: end;
+  grid-template-rows: auto auto 1fr; /* clock, greeting, free space (scene goes here) */
+  column-gap: 50px;
+  row-gap: 0;
+  align-items: start;
   padding: 45px 0 34px;
 }
 .greeting {
   grid-column: 1;
-  order: 3;
+  grid-row: 2;
   display: flex;
   align-items: center;
   gap: 10px;
-  margin: 16px 0 0;
+  margin: 12px 0 0;
   color: var(--soft);
   font-family: "Instrument Serif", Georgia, serif;
   font-size: 1.35rem;
@@ -160,7 +162,7 @@ a:focus-visible {
 }
 .clock {
   grid-column: 1;
-  order: 2;
+  grid-row: 1;
   color: var(--paper);
   font-family: "Geist Pixel", "Courier New", monospace;
   font-size: clamp(4.4rem, 9.6vw, 8.8rem);
@@ -803,12 +805,14 @@ body.is-editing .drag-handle {
 @media (max-width: 900px) {
   .opening {
     grid-template-columns: 1fr;
-    gap: 28px;
+    grid-template-rows: none;
+    gap: 12px 0;
   }
   .calendar-signal {
     grid-column: 1;
     grid-row: auto;
     min-height: 170px;
+    margin-top: 18px;
   }
   .search-area {
     grid-template-columns: 1fr;
@@ -937,7 +941,7 @@ body.is-editing .drag-handle {
   align-items: center;
   gap: 6px;
   color: var(--soft);
-  font-family: "Jetbrains Mono", "Segoe UI", sans-serif;
+  font-family: Bahnschrift, "Segoe UI", sans-serif;
   font-size: 0.78rem;
   cursor: pointer;
 }
@@ -960,21 +964,30 @@ body.is-editing .drag-handle {
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  margin: 0;
   padding: 4px 10px;
   color: var(--muted);
   opacity: 0.5;
-  pointer-events: none;
-  font-family: "Jetbrains Mono", "Segoe UI", sans-serif;
+  cursor: pointer;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  font-family: Bahnschrift, "Segoe UI", sans-serif;
   font-size: 0.68rem;
   letter-spacing: 0.06em;
   white-space: nowrap;
+  transition: opacity 0.25s ease;
 }
-
 .cb-teaser[hidden] {
   display: none;
 }
-
+.cb-teaser:hover,
+.cb-teaser:focus-visible {
+  opacity: 0.95;
+}
+.cb-teaser:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
 .cb-teaser kbd {
   margin: 0 3px;
   padding: 2px 7px;

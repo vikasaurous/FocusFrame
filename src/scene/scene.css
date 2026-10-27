@@ -1,0 +1,190 @@
+/* scene.css: the pixel scene under the greeting.
+ * Sits in the free third row of .opening (see styles.css).
+ * Everything here is white / silver; nothing uses the accent color.
+ */
+
+.scene {
+  grid-column: 1;
+  grid-row: 3;
+  position: relative;
+  align-self: stretch;
+  min-height: 168px;
+  margin-top: 8px;
+}
+.scene[hidden] {
+  display: none;
+}
+
+/* The stage is pinned to the bottom-left so it never changes the row height. */
+.scene-stage {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+}
+.scene-canvas {
+  display: block;
+  image-rendering: pixelated;
+}
+
+/* Invisible buttons over the boy and the pet */
+.scene-hit {
+  position: absolute;
+  padding: 0;
+  cursor: pointer;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+}
+.scene-hit:focus-visible {
+  outline: 2px dashed rgba(255, 255, 255, 0.6);
+  outline-offset: 3px;
+}
+
+/* ---- Thought bubble: pixel corners, white, with trailing dots ---------------- */
+.scene-bubble-wrap {
+  position: absolute;
+  z-index: 5;
+  width: max-content;
+  pointer-events: none; /* only the bubble itself takes clicks */
+  animation: scene-pop 0.18s steps(3) both;
+  transform-origin: bottom left;
+}
+.scene-bubble-wrap[hidden] {
+  display: none;
+}
+.scene-bubble {
+  --cut: 4px;
+  position: relative;
+  display: block;
+  padding: 10px 14px 11px;
+  color: #15171b;
+  text-decoration: none;
+  pointer-events: auto;
+  cursor: pointer;
+  background: #b7bcc7; /* the border color */
+  clip-path: polygon(
+    0 var(--cut),
+    var(--cut) var(--cut),
+    var(--cut) 0,
+    calc(100% - var(--cut)) 0,
+    calc(100% - var(--cut)) var(--cut),
+    100% var(--cut),
+    100% calc(100% - var(--cut)),
+    calc(100% - var(--cut)) calc(100% - var(--cut)),
+    calc(100% - var(--cut)) 100%,
+    var(--cut) 100%,
+    var(--cut) calc(100% - var(--cut)),
+    0 calc(100% - var(--cut))
+  );
+}
+.scene-bubble::before {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  background: #f4f5f8;
+  clip-path: polygon(
+    0 var(--cut),
+    var(--cut) var(--cut),
+    var(--cut) 0,
+    calc(100% - var(--cut)) 0,
+    calc(100% - var(--cut)) var(--cut),
+    100% var(--cut),
+    100% calc(100% - var(--cut)),
+    calc(100% - var(--cut)) calc(100% - var(--cut)),
+    calc(100% - var(--cut)) 100%,
+    var(--cut) 100%,
+    var(--cut) calc(100% - var(--cut)),
+    0 calc(100% - var(--cut))
+  );
+}
+.scene-bubble-text {
+  position: relative;
+  display: block;
+  font-family:
+    "Geist Pixel", "JetBrains Mono", ui-monospace, "Courier New", monospace;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+}
+.scene-bubble:hover .scene-bubble-text {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.scene-bubble:focus-visible {
+  outline: 2px dashed rgba(255, 255, 255, 0.7);
+  outline-offset: 3px;
+}
+
+/* the little trail of dots that points back at whoever is thinking */
+.scene-dot {
+  position: absolute;
+  background: #f4f5f8;
+  box-shadow: 0 0 0 2px #b7bcc7;
+}
+/* boy: the bubble is up and to the right, so the dots trail down-left */
+.scene-bubble-wrap[data-target="boy"] .scene-dot-1 {
+  left: -12px;
+  bottom: -4px;
+  width: 8px;
+  height: 8px;
+}
+.scene-bubble-wrap[data-target="boy"] .scene-dot-2 {
+  left: -22px;
+  bottom: -14px;
+  width: 5px;
+  height: 5px;
+}
+/* pet: the bubble is straight above, so the dots trail straight down */
+.scene-bubble-wrap[data-target="pet"] .scene-dot-1 {
+  left: calc(50% - 4px);
+  bottom: -12px;
+  width: 8px;
+  height: 8px;
+}
+.scene-bubble-wrap[data-target="pet"] .scene-dot-2 {
+  left: calc(50% - 2px);
+  bottom: -20px;
+  width: 5px;
+  height: 5px;
+}
+
+@keyframes scene-pop {
+  from {
+    transform: scale(0.8);
+    opacity: 0.2;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.scene-bubble-wrap[data-target="pet"] {
+  /* keep the horizontal centering the renderer sets while popping in */
+  animation-name: scene-pop-center;
+}
+@keyframes scene-pop-center {
+  from {
+    transform: translateX(-50%) scale(0.8);
+    opacity: 0.2;
+  }
+  to {
+    transform: translateX(-50%) scale(1);
+    opacity: 1;
+  }
+}
+
+/* ---- Small screens: the scene drops under the greeting, full width ---------- */
+@media (max-width: 900px) {
+  .scene {
+    grid-column: 1;
+    grid-row: auto;
+    margin-top: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scene-bubble-wrap,
+  .scene-bubble-wrap[data-target="pet"] {
+    animation: none;
+  }
+}

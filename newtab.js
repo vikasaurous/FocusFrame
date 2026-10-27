@@ -5,6 +5,7 @@ const DEFAULTS = {
   visible: { focus: true, links: true, now: true, goal: true, quote: true },
   focus: "What would make today feel finished?",
   focusNote: "Ship the onboarding notes.",
+  scene: { enabled: true, pet: "cat" },
   now: "Learning to say no to good things. Running mornings. Rereading Stoner.",
   momentumDays: [true, true, false, true, true, true, false],
   links: [
@@ -113,6 +114,8 @@ const quotes = [
 let state = structuredClone(DEFAULTS);
 let editing = false;
 let draggedId = null;
+let sceneCtl = null;
+const SCENE_PETS = ["cat", "dog", "dino"];
 
 const $ = (selector) => document.querySelector(selector);
 const dashboard = $("#dashboard");
@@ -139,6 +142,12 @@ async function load() {
     regrow: true,
     ...(savedData.snake || {}),
   };
+  // Pixel scene settings with safe defaults.
+  state.scene = {
+    ...DEFAULTS.scene,
+    ...(savedData.scene || {}),
+  };
+  if (!SCENE_PETS.includes(state.scene.pet)) state.scene.pet = "cat";
   // Command bar settings with safe defaults.
   state.commandBar = FFCommands.mergeSettings(savedData.commandBar);
   document.documentElement.dataset.accent = state.accent;
@@ -155,6 +164,18 @@ async function load() {
     });
   }
   updateTeaser();
+  initScene();
+}
+
+// Pixel scene under the greeting.
+function initScene() {
+  const box = $("#scene");
+  if (!box || !window.FFScene) return;
+  const s = state.scene || {};
+  sceneCtl = FFScene.init(box, {
+    enabled: s.enabled !== false,
+    pet: s.pet,
+  });
 }
 
 // Small "Press Alt + K" hint at the top center.
@@ -373,6 +394,12 @@ function renderToggles() {
   });
   const regrowEl = $("#snake-regrow");
   if (regrowEl) regrowEl.checked = !!state.snake.regrow;
+  // Sync pixel scene controls.
+  const sceneEnabledEl = $("#scene-enabled");
+  if (sceneEnabledEl) sceneEnabledEl.checked = state.scene.enabled !== false;
+  document.querySelectorAll('[name="scene-pet"]').forEach((r) => {
+    r.checked = r.value === state.scene.pet;
+  });
 }
 
 /** Starts or stops SnakeRenderer based on current state.snake settings. */
@@ -513,6 +540,10 @@ $("#reset-button").addEventListener("click", () => {
   save("Starter layout restored");
   render();
   applySnakeRenderer();
+  if (sceneCtl) {
+    sceneCtl.setPet(state.scene.pet);
+    sceneCtl.setEnabled(state.scene.enabled);
+  }
   if (window.CommandBar) CommandBar.setSettings(state.commandBar);
   updateTeaser();
 });
@@ -557,6 +588,21 @@ $("#snake-regrow").addEventListener("change", function () {
   state.snake.regrow = this.checked;
   save("Regrow updated");
   // regrow takes effect at the start of the next cycle; no re-setup needed.
+});
+
+// ---- Pixel scene settings event listeners --------------------------
+$("#scene-enabled").addEventListener("change", function () {
+  state.scene.enabled = this.checked;
+  if (sceneCtl) sceneCtl.setEnabled(this.checked);
+  save("Scene updated");
+});
+document.querySelectorAll('[name="scene-pet"]').forEach((r) => {
+  r.addEventListener("change", function () {
+    if (!SCENE_PETS.includes(this.value)) return;
+    state.scene.pet = this.value;
+    if (sceneCtl) sceneCtl.setPet(this.value);
+    save("Companion updated");
+  });
 });
 
 updateTime();
