@@ -381,11 +381,20 @@ a:focus-visible {
   background: var(--accent);
 }
 .dashboard {
-  display: grid;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+/* One row, max 3 cards. Cards share the row equally:
+   1 card = 100%, 2 cards = 50% each, 3 = a third each. */
+.module-row {
+  display: flex;
+  flex-wrap: wrap;
   gap: 14px;
 }
 .module {
+  flex: 1 1 calc((100% - 28px) / 3 - 1px);
+  min-width: min(100%, 280px);
   position: relative;
   min-height: 153px;
   padding: 22px 20px;
@@ -404,20 +413,7 @@ a:focus-visible {
   background: var(--panel-hover);
   transform: translateY(-2px);
 }
-.module[data-id="focus"] {
-  grid-column: span 7;
-}
-.module[data-id="links"] {
-  grid-column: span 5;
-}
-.module[data-id="now"] {
-  grid-column: span 4;
-}
-.module[data-id="goal"] {
-  grid-column: span 4;
-}
 .module[data-id="quote"] {
-  grid-column: span 4;
   min-height: 102px;
 }
 .module-title {
@@ -615,7 +611,7 @@ a:focus-visible {
   line-height: 1.3;
 }
 .module-quote cite {
-  display: inline;
+  display: inline-block;
   margin-left: 9px;
   color: var(--muted);
   font-family: Bahnschrift, "Segoe UI", sans-serif;
@@ -625,25 +621,50 @@ a:focus-visible {
   text-transform: uppercase;
 }
 .drag-handle {
-  display: none;
   position: absolute;
-  top: 12px;
-  right: 14px;
+  top: 8px;
+  right: 10px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  opacity: 0;
+  cursor: grab;
+  user-select: none;
+  transition: opacity 0.18s ease;
   color: var(--accent);
   font-family: Bahnschrift, "Segoe UI", sans-serif;
   font-size: 0.58rem;
   font-weight: 700;
   letter-spacing: 0.14em;
 }
-body.is-editing .module {
-  cursor: grab;
-}
 body.is-editing .module:hover {
   outline: 1px dashed var(--accent);
   outline-offset: -7px;
 }
+.module:hover .drag-handle,
+.module:focus-within .drag-handle,
 body.is-editing .drag-handle {
-  display: block;
+  opacity: 1;
+}
+.drag-handle:active {
+  cursor: grabbing;
+}
+/* Where the dragged card will land: beside this one, or in a new row. */
+.module.drop-left {
+  box-shadow: inset 5px 0 0 var(--accent);
+}
+.module.drop-right {
+  box-shadow: inset -5px 0 0 var(--accent);
+}
+.module.drop-top {
+  box-shadow: inset 0 5px 0 var(--accent);
+}
+.module.drop-bottom {
+  box-shadow: inset 0 -5px 0 var(--accent);
+}
+/* Full row: dropping here trades places with this card. */
+.module.drop-swap {
+  outline: 2px dashed var(--accent);
+  outline-offset: -6px;
 }
 .module.dragging {
   opacity: 0.4;
@@ -820,17 +841,6 @@ body.is-editing .drag-handle {
   .engine-row {
     justify-content: flex-start;
   }
-  .module[data-id="focus"] {
-    grid-column: span 12;
-  }
-  .module[data-id="links"] {
-    grid-column: span 12;
-  }
-  .module[data-id="now"],
-  .module[data-id="goal"],
-  .module[data-id="quote"] {
-    grid-column: span 6;
-  }
 }
 @media (max-width: 610px) {
   .frame {
@@ -862,9 +872,6 @@ body.is-editing .drag-handle {
   }
   .engine-row {
     gap: 6px;
-  }
-  .module[data-id] {
-    grid-column: span 12;
   }
   .module[data-id="quote"] {
     min-height: 120px;
@@ -1002,4 +1009,152 @@ body.is-editing .drag-handle {
   .cb-teaser {
     display: none;
   }
+}
+
+/* ── Tasks, countdown, quote actions ───────────────────────────────── */
+.field-input {
+  width: 100%;
+  padding: 8px 2px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  outline: 0;
+  color: var(--paper);
+  background: transparent;
+  font-family: Bahnschrift, "Segoe UI", sans-serif;
+  font-size: 0.84rem;
+  color-scheme: dark;
+}
+.field-input:focus {
+  border-color: var(--accent);
+}
+.field-input::placeholder {
+  color: var(--muted);
+}
+.mini-btn {
+  padding: 4px 0;
+  text-align: left;
+  border: 0;
+  color: var(--muted);
+  background: transparent;
+  font-family: Bahnschrift, "Segoe UI", sans-serif;
+  font-size: 0.64rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.18s ease;
+}
+.mini-btn:hover,
+.mini-btn.is-active {
+  color: var(--accent);
+}
+.task-list {
+  display: grid;
+  gap: 6px;
+  margin: 0 0 10px;
+  padding: 0;
+  list-style: none;
+}
+.task-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: #1e2124;
+}
+.task-check {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 2px solid #3a3d42;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease;
+}
+.task-check:hover {
+  border-color: var(--accent);
+}
+.task-item.is-done .task-check {
+  border-color: var(--paper);
+  background: var(--paper);
+}
+.task-text {
+  flex: 1;
+  min-width: 0;
+  color: var(--paper);
+  font-family: Bahnschrift, "Segoe UI", sans-serif;
+  font-size: 0.86rem;
+  overflow-wrap: anywhere;
+}
+.task-item.is-done .task-text {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+.task-remove {
+  flex: none;
+  padding: 0 4px;
+  border: 0;
+  color: var(--muted);
+  background: transparent;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.task-remove:hover {
+  color: var(--accent);
+}
+.task-count {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-family: Bahnschrift, "Segoe UI", sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+}
+.countdown-number {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 0;
+  color: var(--paper);
+  font-family: "Instrument Serif", Georgia, serif;
+  font-size: 2.6rem;
+  line-height: 1;
+}
+.countdown-unit {
+  color: var(--soft);
+  font-family: Bahnschrift, "Segoe UI", sans-serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+}
+.countdown-label {
+  margin: 10px 0 0;
+  color: #b2c5de;
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+}
+.countdown-date {
+  margin: 4px 0 10px;
+  color: var(--muted);
+  font-family: Bahnschrift, "Segoe UI", sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+}
+.countdown-form,
+.quote-form {
+  display: grid;
+  gap: 8px;
+}
+.quote-form {
+  margin-top: 10px;
+}
+.quote-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 12px;
 }
