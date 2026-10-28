@@ -3,25 +3,28 @@ const DEFAULTS = {
   searchEngine: "default",
   order: ["focus", "links", "now", "goal", "quote", "tasks", "countdown"],
   // Real rows, max 3 cards each. Cards in a row share its width equally.
+  // New users see Focus, Tasks, Links, Habits. The rest are one click away.
   rows: [
-    ["focus", "links"],
-    ["now", "goal", "quote"],
-    ["tasks", "countdown"],
+    ["focus"],
+    ["tasks", "links"],
+    ["goal", "now", "quote"],
+    ["countdown"],
   ],
   visible: {
     focus: true,
     links: true,
-    now: true,
+    now: false,
     goal: true,
-    quote: true,
+    quote: false,
     tasks: true,
-    countdown: true,
+    countdown: false,
   },
   focus: "What would make today feel finished?",
-  focusNote: "Ship the onboarding notes.",
+  focusNote: "Hover to change this line.",
   scene: { enabled: true, pet: "cat" },
-  now: "Learning to say no to good things. Running mornings. Rereading Stoner.",
-  momentumDays: [true, true, false, true, true, true, false],
+  now: "Write what you are working on right now.",
+  habits: [], // up to 5 { id, name }
+  habitLog: {}, // { "YYYY-MM-DD": [habit ids done that day] }
   quotesCustom: [], // [{ text, author }] added by the user
   quotePin: null, // { text, author } while a quote is pinned
   quoteOffset: 0, // moves the daily pick when the user shuffles
@@ -31,8 +34,8 @@ const DEFAULTS = {
     { name: "Mail", url: "https://mail.google.com" },
     { name: "Docs", url: "https://docs.google.com" },
     { name: "Calendar", url: "https://calendar.google.com" },
-    { name: "Reading", url: "https://read.readwise.io" },
-    { name: "Repo", url: "https://github.com" },
+    { name: "Drive", url: "https://drive.google.com" },
+    { name: "YouTube", url: "https://www.youtube.com" },
     { name: "Music", url: "https://open.spotify.com" },
   ],
 };
@@ -119,7 +122,7 @@ const moduleNames = {
   focus: "Daily Focus",
   links: "Quick Links",
   now: "Now",
-  goal: "Weekly Momentum",
+  goal: "Habits",
   quote: "Quote",
   tasks: "Top 3 Tasks",
   countdown: "Countdown",
@@ -166,7 +169,34 @@ async function load() {
   state = { ...structuredClone(DEFAULTS), ...savedData };
   state.visible = { ...DEFAULTS.visible, ...(savedData.visible || {}) };
   state.links = savedData.links || DEFAULTS.links;
-  state.momentumDays = savedData.momentumDays || DEFAULTS.momentumDays;
+  delete state.momentumDays; // old 7-dot week, replaced by the habit log
+  state.habits = (Array.isArray(savedData.habits) ? savedData.habits : [])
+    .filter(
+      (h) =>
+        h &&
+        typeof h.id === "string" &&
+        h.id &&
+        typeof h.name === "string" &&
+        h.name.trim(),
+    )
+    .map((h) => ({ id: h.id.slice(0, 24), name: h.name.slice(0, 24) }))
+    .slice(0, 5);
+  state.habitLog = {};
+  const oldest = new Date();
+  oldest.setDate(oldest.getDate() - 400);
+  const oldestKey = todayKey(oldest);
+  const rawLog =
+    savedData.habitLog && typeof savedData.habitLog === "object"
+      ? savedData.habitLog
+      : {};
+  Object.keys(rawLog).forEach((day) => {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(day) || day < oldestKey) return;
+    if (!Array.isArray(rawLog[day])) return;
+    const ids = [...new Set(rawLog[day])].filter((id) =>
+      state.habits.some((h) => h.id === id),
+    );
+    if (ids.length) state.habitLog[day] = ids;
+  });
   // Keep the user's saved order, but add cards that were released later.
   state.order = (savedData.order || []).filter((id) =>
     DEFAULTS.order.includes(id),
@@ -468,6 +498,34 @@ function moveCard(dragId, targetId, zone) {
   state.order = rows.flat();
 }
 
+// The 7 dates (YYYY-MM-DD) of this week, Monday first.
+function weekDates() {
+  const now = new Date();
+  const monday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7));
+  return Array.from({ length: 7 }, (_, i) => {
+    const day = new Date(monday);
+    day.setDate(monday.getDate() + i);
+    return todayKey(day);
+  });
+}
+
+function habitDone(id, day) {
+  return (state.habitLog[day] || []).includes(id);
+}
+
+// Days in a row, counting back from today (or yesterday if today is not done).
+function habitStreak(id) {
+  const day = new Date();
+  if (!habitDone(id, todayKey(day))) day.setDate(day.getDate() - 1);
+  let n = 0;
+  while (n < 400 && habitDone(id, todayKey(day))) {
+    n += 1;
+    day.setDate(day.getDate() - 1);
+  }
+  return n;
+}
+
 function todayKey(date = new Date()) {
   const pad = (n) => String(n).padStart(2, "0");
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
@@ -551,8 +609,8 @@ function moduleMarkup(id) {
   }
 
   if (id === "goal") {
-    const DAY_LABELS = ["M", "T", "W", "T", "F", "S", "S"];
-    const DAY_NAMES = [
+    const LABELS = ["M", "T", "W", "T", "F", "S", "S"];
+    const NAMES = [
       "Monday",
       "Tuesday",
       "Wednesday",
@@ -561,15 +619,34 @@ function moduleMarkup(id) {
       "Saturday",
       "Sunday",
     ];
-    const filledCount = state.momentumDays.filter(Boolean).length;
-    const dots = DAY_LABELS.map((label, i) => {
-      const filled = state.momentumDays[i];
-      return `<button class="momentum-dot${filled ? " is-filled" : ""}" data-day="${i}" aria-label="${DAY_NAMES[i]}: ${filled ? "done" : "not done"}" aria-pressed="${filled}" type="button"><span class="momentum-dot-circle"></span><span class="momentum-label">${label}</span></button>`;
-    }).join("");
+    const week = weekDates();
+    const today = todayKey();
+    const head = state.habits.length
+      ? `<div class="habit-days habit-head" aria-hidden="true">${LABELS.map((label, i) => `<span class="habit-day-label${week[i] === today ? " is-today" : ""}">${label}</span>`).join("")}</div>`
+      : "";
+    const rows = state.habits
+      .map((habit) => {
+        const dots = week
+          .map((day, i) => {
+            const on = habitDone(habit.id, day);
+            return `<button class="habit-dot${on ? " is-filled" : ""}${day === today ? " is-today" : ""}" type="button" data-habit-id="${escapeHtml(habit.id)}" data-date="${day}" aria-pressed="${on}" aria-label="${escapeHtml(habit.name)}, ${NAMES[i]}: ${on ? "done" : "not done"}"${day > today ? " disabled" : ""}></button>`;
+          })
+          .join("");
+        const count = week.filter((day) => habitDone(habit.id, day)).length;
+        const streak = habitStreak(habit.id);
+        return `<div class="habit"><div class="habit-top"><span class="habit-name">${escapeHtml(habit.name)}</span><span class="habit-meta">${count}/7${streak > 1 ? ` · ${streak} day streak` : ""}</span><button class="habit-remove" type="button" data-habit-remove="${escapeHtml(habit.id)}" aria-label="Remove habit: ${escapeHtml(habit.name)}">&times;</button></div><div class="habit-days">${dots}</div></div>`;
+      })
+      .join("");
+    const form =
+      state.habits.length < 5
+        ? `<form class="habit-form" id="habit-form"><input class="field-input" id="habit-input" maxlength="24" autocomplete="off" aria-label="Add a habit" placeholder="${state.habits.length ? "Add another habit" : "Name a habit to track"}" /></form>`
+        : "";
     return `<article class="module" data-id="goal" draggable="false">${handle}
       <p class="module-title">${title}</p>
-      <div class="momentum-dots" role="group" aria-label="Days this week">${dots}</div>
-      <p class="momentum-count">${filledCount} of 7 days</p>
+      ${head}
+      ${rows}
+      ${form}
+      ${state.habits.length ? "" : '<p class="empty-hint">Track up to 5 habits. Streaks build from today.</p>'}
     </article>`;
   }
 
@@ -593,6 +670,7 @@ function moduleMarkup(id) {
       <p class="module-title">${title}</p>
       ${items.length ? `<ul class="task-list">${list}</ul>` : ""}
       ${form}
+      ${items.length ? "" : '<p class="empty-hint">Pick up to 3 things that would make today count.</p>'}
       ${count}
     </article>`;
   }
@@ -607,6 +685,7 @@ function moduleMarkup(id) {
           <input class="field-input" id="countdown-date" type="date" required aria-label="Countdown date" />
           <button class="mini-btn" type="submit">Start countdown</button>
         </form>
+        <p class="empty-hint">An exam, a trip, a launch. Watch the days tick down.</p>
       </article>`;
     }
     const days = daysUntil(date);
@@ -753,14 +832,46 @@ function bindModuleEvents() {
     });
   }
 
-  dashboard.querySelectorAll(".momentum-dot").forEach((btn) => {
+  // ---- Habits ----
+  dashboard.querySelectorAll(".habit-dot").forEach((btn) => {
     btn.addEventListener("click", () => {
-      const day = parseInt(btn.dataset.day, 10);
-      state.momentumDays[day] = !state.momentumDays[day];
-      save("Momentum updated");
+      const { habitId, date } = btn.dataset;
+      const ids = state.habitLog[date] || [];
+      const next = ids.includes(habitId)
+        ? ids.filter((id) => id !== habitId)
+        : [...ids, habitId];
+      if (next.length) state.habitLog[date] = next;
+      else delete state.habitLog[date];
+      save("Habit updated");
       render();
     });
   });
+  dashboard.querySelectorAll("[data-habit-remove]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const id = btn.dataset.habitRemove;
+      state.habits = state.habits.filter((h) => h.id !== id);
+      Object.keys(state.habitLog).forEach((day) => {
+        state.habitLog[day] = state.habitLog[day].filter((x) => x !== id);
+        if (!state.habitLog[day].length) delete state.habitLog[day];
+      });
+      save("Habit removed");
+      render();
+    });
+  });
+  const habitForm = $("#habit-form");
+  if (habitForm)
+    habitForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const name = $("#habit-input").value.trim().slice(0, 24);
+      if (!name || state.habits.length >= 5) return;
+      const id =
+        "h" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+      state.habits.push({ id, name });
+      save("Habit added");
+      render();
+      const next = $("#habit-input");
+      if (next) next.focus();
+    });
 
   // ---- Top 3 tasks ----
   const taskForm = $("#task-form");
