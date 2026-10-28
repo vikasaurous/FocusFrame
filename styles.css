@@ -381,19 +381,33 @@ a:focus-visible {
   background: var(--accent);
 }
 .dashboard {
-  display: grid;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+/* One row, max 3 cards. Cards share the row equally:
+   1 card = 100%, 2 cards = 50% each, 3 = a third each. */
+.module-row {
+  display: flex;
+  flex-wrap: wrap;
   gap: 14px;
 }
 .module {
+  flex: 1 1 calc((100% - 28px) / 3 - 1px);
+  min-width: min(100%, 280px);
   position: relative;
-  min-height: 153px;
-  padding: 22px 20px;
+  display: flex;
+  flex-direction: column;
+  container-type: inline-size; /* lets a card restyle itself by its own width */
+  min-height: 160px;
+  padding: 24px 24px 22px;
   overflow: hidden;
   border: 1px solid var(--line);
-  border-radius: 15px;
+  border-radius: 16px;
   color: var(--paper);
-  background: var(--panel);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0) 55%),
+    var(--panel);
   transition:
     border-color 0.2s ease,
     background 0.2s ease,
@@ -404,24 +418,21 @@ a:focus-visible {
   background: var(--panel-hover);
   transform: translateY(-2px);
 }
-.module[data-id="focus"] {
-  grid-column: span 7;
-}
-.module[data-id="links"] {
-  grid-column: span 5;
-}
-.module[data-id="now"] {
-  grid-column: span 4;
-}
-.module[data-id="goal"] {
-  grid-column: span 4;
-}
 .module[data-id="quote"] {
-  grid-column: span 4;
   min-height: 102px;
 }
+.module-title::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+  vertical-align: 1px;
+}
 .module-title {
-  margin: 0 0 16px;
+  margin: 0 0 18px;
   color: #b2c5de;
   font-family: Bahnschrift, "Segoe UI", sans-serif;
   font-size: 0.66rem;
@@ -552,58 +563,87 @@ a:focus-visible {
 .module[data-id="now"]:focus-within .now-copy {
   display: none;
 }
-.momentum-dots {
-  display: flex;
-  gap: 8px;
-  align-items: flex-start;
+.habit {
   margin-bottom: 12px;
 }
-.momentum-dot {
+.habit-top {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  min-width: 28px;
-  border: none;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.habit-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--paper);
+  font-family: Bahnschrift, "Segoe UI", sans-serif;
+  font-size: 0.86rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.habit-meta {
+  color: var(--muted);
+  font-family: Bahnschrift, "Segoe UI", sans-serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+.habit-remove {
+  flex: none;
+  padding: 0 4px;
+  border: 0;
+  color: var(--muted);
   background: transparent;
+  font-size: 1.1rem;
+  line-height: 1;
   cursor: pointer;
-  padding: 0;
 }
-.momentum-dot-circle {
-  width: 26px;
-  height: 26px;
-  border: 2px solid #3a3d42;
-  border-radius: 50%;
-  background: #1e2124;
-  transition:
-    border-color 0.18s ease,
-    background 0.18s ease;
-  flex-shrink: 0;
+.habit-remove:hover {
+  color: var(--accent);
 }
-.momentum-dot.is-filled .momentum-dot-circle {
-  border-color: var(--paper);
-  background: var(--paper);
+.habit-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  justify-items: center;
 }
-.momentum-dot:hover .momentum-dot-circle {
-  border-color: var(--accent);
+.habit-head {
+  margin-bottom: 6px;
 }
-.momentum-label {
-  display: block;
+.habit-day-label {
   color: var(--muted);
   font-family: Bahnschrift, "Segoe UI", sans-serif;
   font-size: 0.6rem;
   letter-spacing: 0.08em;
-  text-transform: uppercase;
 }
-.momentum-dot.is-filled .momentum-label {
-  color: var(--soft);
+.habit-day-label.is-today {
+  color: var(--accent);
 }
-.momentum-count {
-  margin: 0;
-  color: var(--muted);
-  font-family: Bahnschrift, "Segoe UI", sans-serif;
-  font-size: 0.72rem;
-  letter-spacing: 0.06em;
+.habit-dot {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 2px solid #3a3d42;
+  border-radius: 50%;
+  background: #1e2124;
+  cursor: pointer;
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease;
+}
+.habit-dot:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+.habit-dot.is-today:not(.is-filled) {
+  border-color: var(--accent);
+}
+.habit-dot.is-filled {
+  border-color: var(--paper);
+  background: var(--paper);
+}
+.habit-dot:disabled {
+  opacity: 0.35;
+  cursor: default;
 }
 .module-quote {
   max-width: 62ch;
@@ -615,7 +655,7 @@ a:focus-visible {
   line-height: 1.3;
 }
 .module-quote cite {
-  display: inline;
+  display: inline-block;
   margin-left: 9px;
   color: var(--muted);
   font-family: Bahnschrift, "Segoe UI", sans-serif;
@@ -625,25 +665,50 @@ a:focus-visible {
   text-transform: uppercase;
 }
 .drag-handle {
-  display: none;
   position: absolute;
-  top: 12px;
-  right: 14px;
+  top: 8px;
+  right: 10px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  opacity: 0;
+  cursor: grab;
+  user-select: none;
+  transition: opacity 0.18s ease;
   color: var(--accent);
   font-family: Bahnschrift, "Segoe UI", sans-serif;
   font-size: 0.58rem;
   font-weight: 700;
   letter-spacing: 0.14em;
 }
-body.is-editing .module {
-  cursor: grab;
-}
 body.is-editing .module:hover {
   outline: 1px dashed var(--accent);
   outline-offset: -7px;
 }
+.module:hover .drag-handle,
+.module:focus-within .drag-handle,
 body.is-editing .drag-handle {
-  display: block;
+  opacity: 1;
+}
+.drag-handle:active {
+  cursor: grabbing;
+}
+/* Where the dragged card will land: beside this one, or in a new row. */
+.module.drop-left {
+  box-shadow: inset 5px 0 0 var(--accent);
+}
+.module.drop-right {
+  box-shadow: inset -5px 0 0 var(--accent);
+}
+.module.drop-top {
+  box-shadow: inset 0 5px 0 var(--accent);
+}
+.module.drop-bottom {
+  box-shadow: inset 0 -5px 0 var(--accent);
+}
+/* Full row: dropping here trades places with this card. */
+.module.drop-swap {
+  outline: 2px dashed var(--accent);
+  outline-offset: -6px;
 }
 .module.dragging {
   opacity: 0.4;
@@ -820,17 +885,6 @@ body.is-editing .drag-handle {
   .engine-row {
     justify-content: flex-start;
   }
-  .module[data-id="focus"] {
-    grid-column: span 12;
-  }
-  .module[data-id="links"] {
-    grid-column: span 12;
-  }
-  .module[data-id="now"],
-  .module[data-id="goal"],
-  .module[data-id="quote"] {
-    grid-column: span 6;
-  }
 }
 @media (max-width: 610px) {
   .frame {
@@ -862,9 +916,6 @@ body.is-editing .drag-handle {
   }
   .engine-row {
     gap: 6px;
-  }
-  .module[data-id] {
-    grid-column: span 12;
   }
   .module[data-id="quote"] {
     min-height: 120px;
@@ -1001,5 +1052,234 @@ body.is-editing .drag-handle {
 @media (max-width: 900px) {
   .cb-teaser {
     display: none;
+  }
+}
+
+/* ── Tasks, countdown, quote actions ───────────────────────────────── */
+.field-input {
+  width: 100%;
+  padding: 8px 2px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  outline: 0;
+  color: var(--paper);
+  background: transparent;
+  font-family: Bahnschrift, "Segoe UI", sans-serif;
+  font-size: 0.84rem;
+  color-scheme: dark;
+}
+.field-input:focus {
+  border-color: var(--accent);
+}
+.field-input::placeholder {
+  color: var(--muted);
+}
+.mini-btn {
+  padding: 4px 0;
+  text-align: left;
+  border: 0;
+  color: var(--muted);
+  background: transparent;
+  font-family: Bahnschrift, "Segoe UI", sans-serif;
+  font-size: 0.64rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.18s ease;
+}
+.mini-btn:hover,
+.mini-btn.is-active {
+  color: var(--accent);
+}
+.task-list {
+  display: grid;
+  gap: 6px;
+  margin: 0 0 10px;
+  padding: 0;
+  list-style: none;
+}
+.task-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: #1e2124;
+}
+.task-check {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 2px solid #3a3d42;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease;
+}
+.task-check:hover {
+  border-color: var(--accent);
+}
+.task-item.is-done .task-check {
+  border-color: var(--paper);
+  background: var(--paper);
+}
+.task-text {
+  flex: 1;
+  min-width: 0;
+  color: var(--paper);
+  font-family: Bahnschrift, "Segoe UI", sans-serif;
+  font-size: 0.86rem;
+  overflow-wrap: anywhere;
+}
+.task-item.is-done .task-text {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+.task-remove {
+  flex: none;
+  padding: 0 4px;
+  border: 0;
+  color: var(--muted);
+  background: transparent;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.task-remove:hover {
+  color: var(--accent);
+}
+.task-count {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-family: Bahnschrift, "Segoe UI", sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+}
+.countdown-number {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 0;
+  color: var(--paper);
+  font-family: "Instrument Serif", Georgia, serif;
+  font-size: 2.6rem;
+  line-height: 1;
+}
+.countdown-unit {
+  color: var(--soft);
+  font-family: Bahnschrift, "Segoe UI", sans-serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+}
+.countdown-label {
+  margin: 10px 0 0;
+  color: #b2c5de;
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+}
+.countdown-date {
+  margin: 4px 0 10px;
+  color: var(--muted);
+  font-family: Bahnschrift, "Segoe UI", sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+}
+.countdown-form,
+.quote-form {
+  display: grid;
+  gap: 8px;
+}
+.quote-form {
+  margin-top: 10px;
+}
+.quote-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 12px;
+}
+
+/* ── Polish: focus ring, empty hints, bottom-aligned actions ───────── */
+.field-input:focus-visible {
+  outline: 0;
+  border-color: var(--accent);
+  box-shadow: 0 1px 0 var(--accent);
+}
+.empty-hint {
+  margin: 14px 0 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+.quote-actions,
+.task-count {
+  margin-top: auto;
+  padding-top: 14px;
+}
+.countdown-form {
+  margin-top: 2px;
+}
+.countdown-date {
+  margin-bottom: 14px;
+}
+.module[data-id="countdown"] .mini-btn[data-countdown-clear] {
+  margin-top: auto;
+  align-self: flex-start;
+}
+
+/* ── Wide cards: bigger type, habits on one line per habit ─────────── */
+@container (min-width: 520px) {
+  .module-quote {
+    font-size: 1.7rem;
+  }
+  .focus-prompt {
+    max-width: 34ch;
+    font-size: 1.9rem;
+  }
+  .now-copy {
+    font-size: 1rem;
+  }
+  .habit-form,
+  .task-form {
+    max-width: 520px;
+  }
+}
+
+/* Habits go one line per habit only when the card is really wide. */
+@container (min-width: 760px) {
+  .habit {
+    display: grid;
+    grid-template-columns: 190px minmax(0, 380px) 1fr auto;
+    align-items: center;
+    column-gap: 20px;
+    margin-bottom: 14px;
+  }
+  .habit-top {
+    display: contents;
+  }
+  .habit-name {
+    order: 1;
+    font-size: 0.95rem;
+  }
+  .habit .habit-days {
+    order: 2;
+  }
+  .habit-meta {
+    order: 3;
+  }
+  .habit-remove {
+    order: 4;
+  }
+  .habit-head {
+    max-width: 380px;
+    margin-left: 210px;
+  }
+  .habit-dot {
+    width: 26px;
+    height: 26px;
   }
 }
