@@ -1,8 +1,3 @@
----
-name: Pull Request
-about: Describe this pull request
----
-
 ## What does this change?
 
 <!-- One or two sentences explaining what this PR does. -->

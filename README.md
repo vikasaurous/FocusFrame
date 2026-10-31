@@ -1,103 +1,133 @@
-<div align="center">
+<h1 align="center">
+  <img src="docs/banner.svg" alt="FocusFrame: a calm, pixel-art new tab" width="100%">
+</h1>
 
-![FocusFrame — Your calm, pixel-art new tab](docs/screenshots/banner.png)
+<p align="center">
+  <strong>A calm, pixel-art new tab for people who want the first screen of the day to say what matters.</strong><br>
+  One daily focus, three tasks, a few habits, your links, and a small living scene. All on your device.
+</p>
 
-**A calm, pixel-art new tab for people who want their first screen of the day to say what matters.**
+<p align="center">
+  <a href="https://github.com/vikasaurous/FocusFrame/actions/workflows/test.yml"><img alt="Tests" src="https://github.com/vikasaurous/FocusFrame/actions/workflows/test.yml/badge.svg"></a>
+  <img alt="Manifest V3" src="https://img.shields.io/badge/Manifest-V3-1f6feb?logo=googlechrome&logoColor=white">
+  <img alt="Vanilla JavaScript, no build step" src="https://img.shields.io/badge/vanilla%20JS-no%20build-f7df1e?logo=javascript&logoColor=black">
+  <img alt="Zero runtime dependencies" src="https://img.shields.io/badge/dependencies-0-lightgrey">
+  <img alt="Data stays on your device" src="https://img.shields.io/badge/data-stays%20on%20device-2ea043">
+  <a href="#install"><img alt="Store status: not yet listed" src="https://img.shields.io/badge/store-not%20yet%20listed-orange"></a>
+</p>
 
-One daily focus · three tasks · a handful of habits · your links · all on your device.
+<p align="center">
+  <a href="#install">Install</a> ·
+  <a href="#features">Features</a> ·
+  <a href="#privacy">Privacy</a> ·
+  <a href="#development">Development</a> ·
+  <a href="#roadmap">Roadmap</a> ·
+  <a href="CONTRIBUTING.md">Contributing</a>
+</p>
 
-[![Tests](https://img.shields.io/github/actions/workflow/status/vikasaurous/FocusFrame/test.yml?label=tests&logo=github)](https://github.com/vikasaurous/FocusFrame/actions)
-[![Manifest V3](https://img.shields.io/badge/Manifest-V3-1f6feb?logo=googlechrome&logoColor=white)](https://developer.chrome.com/docs/extensions/mv3/intro/)
-[![Node 20+](https://img.shields.io/badge/Node-%3E%3D20-339933?logo=nodedotjs&logoColor=white)](https://nodejs.org/)
-[![Zero dependencies](https://img.shields.io/badge/dependencies-0-lightgrey)](https://github.com/vikasaurous/FocusFrame#development)
-[![No tracking](https://img.shields.io/badge/tracking-none-2ea043)](https://github.com/vikasaurous/FocusFrame#privacy)
-[![No account](https://img.shields.io/badge/account-not%20needed-2ea043)](https://github.com/vikasaurous/FocusFrame#privacy)
-[![Store status](https://img.shields.io/badge/store-not%20yet%20listed-orange)](https://github.com/vikasaurous/FocusFrame#install)
+<p align="center">
+  <img src="docs/screenshots/hero.png" alt="FocusFrame new tab at night: a large pixel clock, a pixel person on a bench with a cat under the moon, a 365-dot year calendar, the search box and the Daily Focus card" width="900">
+</p>
 
-[![FocusFrame Dashboard](docs/screenshots/hero.png)](docs/screenshots/hero.png)
+> The screenshot is a real capture of the extension running in a browser, using the default starter content.
 
-</div>
+## Why FocusFrame
 
----
+Most new tab pages are a wall of widgets. FocusFrame keeps a few things that help you start your day, and a small pixel scene that keeps you company while you work.
 
-## Why FocusFrame?
-
-Most new tab pages are a wall of widgets. FocusFrame is the opposite: a few things that help you start your day, and a small pixel scene that keeps you company while you work.
-
-- **Write one intention.** A single focus line so you don't forget what today is for.
+- **One line for today.** Write what would make today feel finished.
 - **Three tasks, not thirty.** A hard limit keeps the list honest.
-- **Habits that reset by the calendar.** Weekly view with streaks, no guilt.
+- **Habits that follow the calendar.** A weekly view with streaks and no guilt.
 - **Everything stays on your device.** No account, no sync service, no analytics.
 
----
+## Quick start
+
+FocusFrame is not on a browser store yet. To try it in under a minute:
+
+1. Download this repository (**Code → Download ZIP**) and unzip it.
+2. Open `chrome://extensions`, turn on **Developer mode**, click **Load unpacked**, and pick the folder that contains `manifest.json`.
+3. Open a new tab.
+
+Full steps for Chrome, Edge and Brave are in [Install](#install).
 
 ## Features
 
-### 🖼 Pixel scene
+### Pixel scene
 
-A hand-drawn pixel scene sits at the top of every new tab: a person coding on a bench, a pet at their side, flowers, and a sky that tracks your actual local time.
+A hand-drawn pixel scene sits at the top of every new tab: a person coding on a bench, a pet at their side, a flower, and a sky that follows your real local time.
 
-- Sun by day, moon and stars at night — both cross the sky as the hours pass.
-- Animated sun rays and a walking pet (frame-by-frame pixel animation).
-- Choose your pet: **cat**, **dog**, or **dino**.
-- Hover the person or the pet for a reaction.
-- Respects `prefers-reduced-motion` — nothing moves on its own when reduced motion is on.
-- Can be turned off entirely from the customize panel.
+- Sun by day, moon and stars by night, crossing the sky as the hours pass.
+- Sun rays and the walking pet animate frame by frame.
+- Choose your pet: cat, dog, or dino.
+- Hover the person or the pet and they react.
+- Respects the system *reduced motion* setting: nothing moves on its own when it is on.
+- Turn the scene off entirely in the customize panel.
 
-### 🃏 Cards
+Under the clock, a short greeting changes with the time of day.
+
+### Cards
 
 | Card | What it does |
-|------|-------------|
-| **Daily Focus** | One line for today, plus an optional short note. Hover to edit. |
-| **Top 3 Tasks** | Up to three tasks. Finished ones clear overnight; unfinished ones carry over. |
-| **Habits** | Up to five named habits, Monday–Sunday. Streaks, weekly count, late check-ins for earlier days in the current week. Future days are locked. |
-| **Quick Links** | Shortcuts to your favourite sites. Add and reorder them in the customize panel. |
+| --- | --- |
+| **Daily Focus** | One line for today, plus a short note. Hover to edit. |
+| **Top 3 Tasks** | Up to three tasks. Finished tasks clear the next day; unfinished ones carry over. |
+| **Habits** | Up to five named habits, Monday to Sunday. Streaks, a weekly count, and late check-ins for earlier days this week. Future days are locked. |
+| **Quick Links** | Shortcuts to your favorite sites. Add your own from the customize panel. |
 | **Now** | A short note about what you are doing right now. |
-| **Quote** | A daily quote. Shuffle, pin one, or write your own. |
-| **Countdown** | Days remaining to an exam, launch, or trip. |
+| **Quote** | A daily quote. Shuffle, pin one, or add your own. |
+| **Countdown** | Days to an exam, a trip, or a launch. |
 
-New installs show **Daily Focus**, **Top 3 Tasks**, **Quick Links**, and **Habits**. The remaining cards are one click away in the customize panel.
+New installs show Daily Focus, Top 3 Tasks, Quick Links and Habits. Now, Quote and Countdown are one click away in the customize panel.
 
-### 📐 Drag-and-drop layout
+### Layout you control
 
-- Drag any card by its **DRAG** handle (visible on hover).
-- Drop on the **left or right half** of a card to place it beside it.
+- Drag a card by its **DRAG** handle (it appears on hover).
+- Drop on the **left or right half** of another card to place it beside that card.
 - Drop on the **top or bottom edge** to start a new row.
-- A row holds **up to three cards** — one is full-width, two share it equally, three take a third each.
+- A row holds **up to three cards** and splits its width equally: one card is full width, two are half each, three are a third each.
 - Dropping onto a full row from another row **swaps** the two cards.
 - Cards restyle themselves to their width and wrap on narrow windows.
 
-### 🔍 Search and command bar
+### Search and command bar
 
-- Built-in search box — choose your engine: browser default, Google, DuckDuckGo, Bing, or Brave.
-- Press **Alt + K** (configurable) to open the command bar.
-- Type a `/command query` to jump anywhere: `/wiki cats`, `/r python`, `/gh react`.
-- 16 built-in destinations: Wikipedia, Reddit, GitHub, Stack Overflow, Google Maps, Google Images, Google Translate, Spotify, Amazon, ChatGPT, Claude, Gemini, Perplexity, Grok, Google, and YouTube.
-- Customize: default destination, same-tab or new-tab results, on/off toggle, and shortcut key.
+- A search box with a choice of engine: browser default, Google, DuckDuckGo, Bing, or Brave.
+- Press **Alt + K** to open the command bar, then type a `/command` followed by your query, for example `/wiki cats`, `/r python` or `/gh react`.
+- 16 built-in destinations: Wikipedia, Reddit, GitHub, Stack Overflow, Google Maps, Google Images, Google Translate, Spotify, Amazon, ChatGPT, Claude, Gemini, Perplexity, Grok, Google and YouTube.
+- In the customize panel you can turn the bar on or off, pick the default destination, choose same-tab or new-tab results, and change the shortcut key.
 
-![FocusFrame Command Bar](docs/screenshots/commandbar.png)
+<p align="center">
+  <img src="docs/screenshots/commandbar.png" alt="The FocusFrame command bar open over a dimmed new tab, with ChatGPT selected as the destination" width="760">
+</p>
 
-### 📅 Year in dots
+### Year in dots
 
-A 365-dot calendar in the page header shows how far through the year you are, with days remaining and a live countdown to midnight. An optional animated snake can eat through the finished days (off by default; speed and regrow cycle are adjustable).
+A 365-dot calendar shows how far through the year you are, with the days left and a live countdown to midnight. An optional snake can eat through the finished days (off by default; speed and regrow are adjustable).
 
-### 🎨 Customize panel
+### Customize
 
 - Show or hide any card.
-- Four accent colors: **coral**, **cobalt**, **moss**, and **plum**.
-- Scene, pet, and year-snake settings.
-- **Reset to starter layout** restores defaults in one click.
-- Keyboard accessible — visible focus states and labelled controls throughout.
-
----
+- Four accent colors: coral, cobalt, moss and plum.
+- Scene, pet and year-snake settings.
+- **Reset to starter layout** restores the defaults in one click.
+- Keyboard accessible, with visible focus states and labelled controls.
 
 ## Install
 
-> **Store status:** FocusFrame has not been submitted to the Chrome Web Store or any other browser store yet. The installation below is the only way to run it.
+### Release status
 
-### Manual (unpacked) install
+| Channel | Status |
+| --- | --- |
+| Source on GitHub (`main`) | Available. Install it unpacked, as shown below. |
+| GitHub Releases | None published yet. |
+| Chrome Web Store | Not submitted. |
+| Edge Add-ons | Not submitted. |
+| Firefox Add-ons | Not submitted. Firefox is not supported yet. |
 
-1. **Download the repository.**
+This table is updated when a listing changes. Status words are used strictly: *not submitted*, *submitted*, *under review*, *approved*, *public*.
+
+### Install unpacked (Chrome, Edge, Brave)
+
+1. Get the code:
 
    ```bash
    git clone https://github.com/vikasaurous/FocusFrame.git
@@ -105,186 +135,132 @@ A 365-dot calendar in the page header shows how far through the year you are, wi
 
    Or click **Code → Download ZIP** and unzip it.
 
-2. **Open your browser's extension page.**
+2. Open your browser's extensions page:
 
    | Browser | Address |
-   |---------|---------|
+   | --- | --- |
    | Chrome | `chrome://extensions` |
    | Edge | `edge://extensions` |
    | Brave | `brave://extensions` |
 
-3. Enable **Developer mode** (toggle in the top-right corner).
+3. Turn on **Developer mode** (top-right).
 4. Click **Load unpacked** and select the folder that contains `manifest.json`.
 5. Open a new tab.
 
-**Notes**
+Notes:
 
-- Chrome may show a reminder about developer-mode extensions at startup — this is normal for unpacked installs.
-- Since Chrome 138, Chrome adds its own footer on extension-provided new tab pages. To hide it, right-click the footer and choose **Hide footer on New Tab page**, or go to Customize Chrome → turn off **Show footer on New tab page**.
-- Firefox is not supported at this time.
-
----
+- Chrome may show a reminder about developer-mode extensions when it starts. That is normal for unpacked installs.
+- Since Chrome 138, Chrome shows its own footer on new tab pages provided by an extension, with a link to the extension and a **Customize Chrome** button. It is not part of FocusFrame. To hide it, right-click the footer and choose **Hide footer on New Tab page**, or turn off **Show footer on New tab page** in Customize Chrome.
+- To update an unpacked install, pull or re-download the repository and press the reload icon on the extension's card.
 
 ## Privacy
 
 FocusFrame is built to keep your data with you.
 
 | What | Details |
-|------|---------|
-| **Storage** | All settings, tasks, habits, notes, and links are stored in `chrome.storage.local` — on your device only. |
-| **Permissions** | The extension requests only the `storage` permission. |
-| **Network requests** | The page loads fonts from **Google Fonts** on each new tab open. This is the only external request. Bundling fonts locally is planned. |
-| **Analytics** | None. |
-| **Accounts** | Not required. |
-| **Remote code** | None executed. |
-| **Search queries** | When you use the search box or command bar, your browser opens the target site directly. FocusFrame does not see or log those queries. |
+| --- | --- |
+| **Storage** | Settings, tasks, habits, notes and links are stored with `chrome.storage.local` in your browser. If the page is opened outside an extension (for local development), it falls back to the page's `localStorage`. |
+| **Permissions** | Only `storage`. |
+| **Network requests** | On every new tab the page loads its fonts (JetBrains Mono, Instrument Serif, Geist Pixel) from **Google Fonts**, so your browser contacts Google. This is the only external request. Bundling the fonts locally is on the roadmap. |
+| **Analytics, ads, accounts** | None. |
+| **Remote code** | None is loaded or executed. |
+| **Searches** | When you use the search box or the command bar, your browser opens the site you picked. FocusFrame does not see or log the query. |
 
----
+## Documentation
+
+| Document | What is in it |
+| --- | --- |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | File layout, how the pieces fit, what is stored. |
+| [docs/RELEASING.md](docs/RELEASING.md) | How to package a release and keep the status table honest. |
+| [docs/screenshots/CAPTURE.md](docs/screenshots/CAPTURE.md) | How to take and add screenshots. |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | How to propose and submit changes. |
+| [SECURITY.md](SECURITY.md) | How to report a vulnerability. |
+| [PRODUCT.md](PRODUCT.md) | Product notes and design principles. |
 
 ## Architecture
 
-```
-FocusFrame/
-├── manifest.json           Manifest V3 extension entry point
-├── newtab.html             New tab page (root HTML)
-├── newtab.js               Cards, layout engine, storage, customize panel
-├── styles.css              Global styles
-│
-├── src/
-│   ├── scene/
-│   │   ├── sceneEngine.js      Pure logic: sky, celestial bodies, pet, boy, time
-│   │   ├── sceneSprites.js     Pixel-art sprite definitions
-│   │   ├── sceneRenderer.js    DOM renderer for the scene
-│   │   ├── scene.css           Scene-specific styles
-│   │   └── sceneEngine.test.js Unit tests (node --test)
-│   │
-│   ├── commandbar/
-│   │   ├── commands.js         Built-in command definitions and URL builder
-│   │   ├── commandBar.js       UI controller (input, results, keyboard)
-│   │   ├── ripple.js           Click ripple animation
-│   │   ├── commandBar.css      Command bar styles
-│   │   └── commands.test.js    Unit tests (node --test)
-│   │
-│   └── snake/
-│       ├── snakeEngine.js      Pure logic: pathfinding, state, cycle
-│       ├── snakeRenderer.js    DOM renderer for the year-dot snake
-│       └── snakeEngine.test.js Unit tests (node --test)
-│
-├── icons/                  Extension icons (16 · 32 · 48 px)
-├── tools/
-│   └── fetch-logos.mjs     Dev helper: fetches brand logos for quick links
-│
-├── docs/
-│   └── screenshots/        README assets (see CAPTURE.md for how to add them)
-│
-└── .github/
-    ├── workflows/test.yml           CI: runs node --test on push and PR
-    ├── ISSUE_TEMPLATE/              Bug report and feature request templates
-    └── PULL_REQUEST_TEMPLATE.md     PR checklist
+```text
+manifest.json     Manifest V3 entry point (permission: storage)
+newtab.html       The new tab page
+newtab.js         Cards, layout, storage, customize panel
+styles.css        Global styles
+src/scene/        Pixel scene: engine, sprites, renderer
+src/commandbar/   Alt + K command bar
+src/snake/        Optional year-dot snake
+icons/            Extension icons and quick-link brand logos
+tools/            Developer helpers (logo fetcher, banner generator)
+docs/             Banner, screenshots and project documents
 ```
 
-**Design principles:**
-
-- Pure engine files contain only logic (no DOM, no `chrome.*` calls) so they can be tested with `node --test` without a browser.
-- Renderer files handle the DOM; they are not tested automatically.
-- `newtab.js` wires everything together and is the only file that touches `chrome.storage`.
-
----
+Logic lives in pure engine files with tests; DOM code lives in renderers and `newtab.js`. Details are in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Development
 
-FocusFrame is plain HTML, CSS, and JavaScript. There is no build step and no runtime dependencies.
+FocusFrame is plain HTML, CSS and JavaScript. There is no build step and no runtime dependency.
 
-### Requirements
-
-- Node.js 20 or newer (for `node --test`)
-- A Chromium-based browser (Chrome, Edge, or Brave) for manual testing
-
-### Run the tests
+**Requirements:** Node.js 22 or newer to run the tests, and a Chromium-based browser for manual testing.
 
 ```bash
+# run every test
 node --test
-```
 
-To run a single test file:
-
-```bash
+# or one file at a time
 node --test src/scene/sceneEngine.test.js
 node --test src/commandbar/commands.test.js
 node --test src/snake/snakeEngine.test.js
 ```
 
-**Current test result (as of v0.1.0):** 71 tests, 0 failures.
+The engine files hold the logic and are covered by tests. Renderers and `newtab.js` touch the DOM and are checked by hand: load the extension unpacked and click through the page.
 
-### Validate the workflow YAML
+GitHub Actions runs `node --test` on every push and pull request (see [`.github/workflows/test.yml`](.github/workflows/test.yml)).
 
-```bash
-# Requires the GitHub CLI or an online YAML linter.
-# The workflow file is at .github/workflows/test.yml
-```
-
-### Capture screenshots
-
-See [`docs/screenshots/CAPTURE.md`](docs/screenshots/CAPTURE.md) for the exact steps to take and commit new screenshots.
-
----
+To regenerate the README banner from the extension's own sprites: `node tools/make-banner.mjs`.
 
 ## Known limitations
 
-- **No Firefox support.** The extension uses `chrome.*` APIs with no `browser.*` fallback.
-- **Google Fonts.** One external request per new tab open. Font bundling is on the roadmap.
-- **Habits are weekly only.** History beyond the current week is not stored.
-- **No backup/restore.** There is no export or import of settings.
-- **Chrome footer (Chrome 138+).** Chrome shows its own footer on extension new tab pages. It can be hidden manually (see Install notes above).
-- **No browser-store listing.** Only available as a manual unpacked install for now.
-
----
+- Developed and checked in Chrome and Brave. Edge uses the same engine but has not been tested separately.
+- Firefox is not supported: the extension is not packaged or tested for it.
+- The page loads fonts from Google Fonts (one external request per new tab).
+- Habits show the current week only. Check-ins are kept in storage for up to 400 days, but there is no history view yet.
+- Quick links can be added but not yet edited, removed or reordered from the interface.
+- There is no backup or restore of your data.
+- Drag and drop uses the browser's native drag events, so it needs a mouse or trackpad.
+- Chrome 138 and newer adds its own footer on extension new tab pages (see [Install](#install)).
 
 ## Roadmap
 
 Ideas, not promises:
 
-- [ ] Bundle fonts locally (remove the Google Fonts request)
-- [ ] Backup and restore settings as a JSON file
-- [ ] Submit to the Chrome Web Store
-- [ ] Firefox support
-- [ ] Edge Add-ons listing
+- [ ] Bundle fonts locally and remove the Google Fonts request
+- [ ] Edit and remove quick links
+- [ ] Backup and restore as a JSON file
 - [ ] Habit history beyond the current week
+- [ ] Browser store listings (Edge Add-ons and Chrome Web Store)
+- [ ] Firefox support
 - [ ] A scene that reacts to finished tasks and habit streaks
 
-Suggestions welcome — [open an issue](https://github.com/vikasaurous/FocusFrame/issues).
-
----
+Suggestions are welcome: [open an issue](https://github.com/vikasaurous/FocusFrame/issues/new/choose).
 
 ## Contributing
 
-Issues and pull requests are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) first.
+Issues and pull requests are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) first. In short: check existing issues, open an issue before anything larger than a small fix, run `node --test`, load the extension unpacked, and fill in the pull request template.
 
-Short version:
+## Security
 
-1. Check existing issues before opening a new one.
-2. For anything larger than a bug fix, open an issue to agree on the approach first.
-3. Fork, branch, change, test (`node --test`), and load unpacked.
-4. Open a pull request using the template.
+To report a vulnerability, follow [SECURITY.md](SECURITY.md). Please do not open a public issue for it.
 
----
+## Support
+
+FocusFrame is free, has no ads, and is built by one person. If it makes your new tab nicer, you can [buy me a coffee](https://buymeacoffee.com/vikasaurous). Starring the repository and sharing it helps just as much.
+
+## Credits
+
+- Pixel art and the banner are original to this project. The banner is generated from the extension's own sprite data.
+- Fonts are loaded from Google Fonts: JetBrains Mono, Instrument Serif and Geist Pixel.
+- Quick-link and command bar brand logos in `icons/brands/` were fetched from [Simple Icons](https://simpleicons.org) with `tools/fetch-logos.mjs`. The logos are trademarks of their owners and are used only to identify the destinations.
 
 ## License
 
 No license has been chosen yet. Until a `LICENSE` file is added, all rights are reserved by the author.
 
-> **Maintainer action required:** Choose a license and add a `LICENSE` file. Common choices for open-source browser extensions are [MIT](https://choosealicense.com/licenses/mit/), [Apache 2.0](https://choosealicense.com/licenses/apache-2.0/), and [GPL-3.0](https://choosealicense.com/licenses/gpl-3.0/).
-
----
-
-## Security
-
-To report a vulnerability, please follow the process in [SECURITY.md](SECURITY.md). Do not open a public issue.
-
----
-
-<div align="center">
-
-Made with a pixel bench, a tiny cat, and `chrome.storage.local`.
-
-</div>
+> **Maintainer decision needed:** choose a license and add a `LICENSE` file. Common choices for browser extensions are [MIT](https://choosealicense.com/licenses/mit/), [Apache 2.0](https://choosealicense.com/licenses/apache-2.0/) and [GPL-3.0](https://choosealicense.com/licenses/gpl-3.0/).
