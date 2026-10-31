@@ -1,0 +1,60 @@
+name: Bug Report
+description: Report something that isn't working as expected.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug report. Please fill in as much detail as you can.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Describe the problem clearly. What did you do, what did you expect, and what actually happened?
+      placeholder: |
+        Steps to reproduce:
+        1. Open a new tab
+        2. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+      description: A clear description of the expected behavior.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: browser
+    attributes:
+      label: Browser
+      options:
+        - Chrome
+        - Edge
+        - Brave
+        - Other (describe in the notes below)
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Browser version
+      placeholder: "e.g. 126.0.6478.62"
+
+  - type: input
+    id: extension-version
+    attributes:
+      label: FocusFrame version
+      description: "Shown in chrome://extensions next to the extension name."
+      placeholder: "e.g. 0.1.0"
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
+      description: Console errors, screenshots, or anything else that might help.

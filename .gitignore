@@ -1,1 +1,21 @@
+# Quick-link brand logos (fetched by tools/fetch-logos.mjs, not committed)
 icons/brands/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# Editor directories and files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Node (only relevant if you run tools/ scripts)
+node_modules/
