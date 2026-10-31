@@ -1,5 +1,5 @@
-# Quick-link brand logos (fetched by tools/fetch-logos.mjs, not committed)
-icons/brands/
+# Release packages (see docs/RELEASING.md)
+*.zip
 
 # macOS
 .DS_Store

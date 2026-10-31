@@ -1,37 +1,35 @@
 # Security Policy
 
-## Reporting a Vulnerability
+## Reporting a vulnerability
 
-If you believe you have found a security vulnerability in FocusFrame, please **do not open a public GitHub issue**.
+If you believe you have found a security vulnerability in FocusFrame, please **do not open a public issue**.
 
-Instead, report it privately by emailing the maintainer or by using [GitHub's private vulnerability reporting](https://docs.github.com/en/code-security/security-advisories/guidance-on-reporting-and-writing/privately-reporting-a-security-vulnerability) feature on this repository.
+Report it privately with GitHub's private vulnerability reporting: open the repository's **Security** tab and choose **Report a vulnerability**. If that option is not available, open a public issue that says only that you have a security report, with no technical details, and the maintainer will arrange a private way to receive it.
 
 Please include:
 
-- A description of the vulnerability and the potential impact
-- Steps to reproduce or proof-of-concept
-- Any suggested mitigations, if you have them
+- A description of the problem and its potential impact.
+- Steps to reproduce, or a proof of concept.
+- Any mitigation you suggest.
 
-You can expect an acknowledgement within a few days and a fix as soon as the issue is confirmed.
+You can expect an acknowledgement within a few days. A fix will follow once the issue is confirmed.
 
-## Scope
+## What FocusFrame does
 
-FocusFrame is a browser extension that runs entirely on your device. It:
+FocusFrame is a browser extension that runs on your device. As of the current code it:
 
-- Stores all data in `chrome.storage.local`
-- Makes no authenticated requests
-- Loads fonts from Google Fonts (the only external request)
-- Does not execute remote code
+- Stores its data with `chrome.storage.local` (or the page's `localStorage` when opened outside an extension, for development).
+- Asks for one extension permission: `storage`.
+- Loads fonts from Google Fonts. This is the only external request the page makes.
+- Does not load or execute remote code.
+- Does not send your data anywhere.
 
-Security reports are most relevant to:
+## What is most useful to report
 
-- Content injection or XSS via user-supplied input (focus text, task names, habit names, custom links, custom commands)
-- Privilege escalation via the `storage` permission
-- Data leakage to third-party origins
+- Script injection or cross-site scripting through user-supplied text: focus and note text, task and habit names, quote text and author, countdown label, quick-link names and URLs, command bar input.
+- Ways a web page or another extension could read or change FocusFrame's stored data.
+- Any request that sends user data to a third party.
 
-## Supported Versions
+## Supported versions
 
-| Version | Supported |
-|---------|-----------|
-| 0.1.x   | ✅ Yes     |
-| Earlier | ❌ No      |
+Only the latest commit on `main` is supported. There are no published releases yet.

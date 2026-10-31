@@ -16,17 +16,19 @@ git clone https://github.com/vikasaurous/FocusFrame.git
 cd FocusFrame
 ```
 
-Load it in Chrome as an unpacked extension:
+Load it in Chrome, Edge or Brave as an unpacked extension:
 
-1. Go to `chrome://extensions`
+1. Go to `chrome://extensions` (or `edge://extensions`, `brave://extensions`)
 2. Enable **Developer mode**
 3. Click **Load unpacked** and select the repository folder
 
-To run the tests (Node 20 or newer required):
+To run the tests (Node 22 or newer required):
 
 ```bash
 node --test
 ```
+
+Read [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for how the pieces fit together.
 
 ## Making a change
 
