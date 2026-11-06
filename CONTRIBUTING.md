@@ -35,13 +35,13 @@ Read [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for how the pieces fit togethe
 1. Fork the repository.
 2. Create a branch: `git checkout -b fix/my-bug` or `git checkout -b feature/my-feature`.
 3. Make your changes. Keep them small and focused.
-4. Run `node --test` — all tests must pass.
+4. Run `node --test`. All tests must pass.
 5. Load the extension and check the page manually in at least one Chromium-based browser.
 6. Open a pull request and fill in the PR template.
 
 ## Code style
 
-- Plain HTML, CSS, and JavaScript — no TypeScript, no transpilation.
+- Plain HTML, CSS, and JavaScript. No TypeScript, no transpilation.
 - No new runtime dependencies. If you think a dependency is genuinely needed, discuss it in an issue first.
 - No build system.
 - Keep existing comments and docstrings that are unrelated to your change.
@@ -65,6 +65,8 @@ Read [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for how the pieces fit togethe
 - Changes that collect, transmit, or expose user data.
 - Unrelated cleanups bundled into a feature or bug fix.
 
-## License note
+## License
 
-FocusFrame does not yet have a license file. All rights are reserved by the author until a license is chosen. Contributions submitted as pull requests are accepted on the understanding that the maintainer retains the right to choose a license for the project.
+FocusFrame is licensed under the [GNU General Public License v3.0](LICENSE).
+
+By submitting a pull request, you agree that your contribution is released under the same license (GPL v3), and that you have the right to submit it. Do not submit code you did not write or that comes from a source with an incompatible license.
