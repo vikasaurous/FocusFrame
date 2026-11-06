@@ -12,6 +12,7 @@
   <img alt="Manifest V3" src="https://img.shields.io/badge/Manifest-V3-1f6feb?logo=googlechrome&logoColor=white">
   <img alt="Vanilla JavaScript, no build step" src="https://img.shields.io/badge/vanilla%20JS-no%20build-f7df1e?logo=javascript&logoColor=black">
   <img alt="Zero runtime dependencies" src="https://img.shields.io/badge/dependencies-0-lightgrey">
+  <a href="LICENSE"><img alt="License: GPL v3" src="https://img.shields.io/badge/license-GPLv3-blue"></a>
   <img alt="Data stays on your device" src="https://img.shields.io/badge/data-stays%20on%20device-2ea043">
   <a href="#install"><img alt="Store status: not yet listed" src="https://img.shields.io/badge/store-not%20yet%20listed-orange"></a>
 </p>
@@ -245,6 +246,8 @@ Suggestions are welcome: [open an issue](https://github.com/vikasaurous/FocusFra
 
 Issues and pull requests are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) first. In short: check existing issues, open an issue before anything larger than a small fix, run `node --test`, load the extension unpacked, and fill in the pull request template.
 
+By contributing, you agree your work is released under GPL v3.
+
 ## Security
 
 To report a vulnerability, follow [SECURITY.md](SECURITY.md). Please do not open a public issue for it.
@@ -261,6 +264,10 @@ FocusFrame is free, has no ads, and is built by one person. If it makes your new
 
 ## License
 
-No license has been chosen yet. Until a `LICENSE` file is added, all rights are reserved by the author.
+FocusFrame is free software, licensed under the [GNU General Public License v3.0](LICENSE).
 
-> **Maintainer decision needed:** choose a license and add a `LICENSE` file. Common choices for browser extensions are [MIT](https://choosealicense.com/licenses/mit/), [Apache 2.0](https://choosealicense.com/licenses/apache-2.0/) and [GPL-3.0](https://choosealicense.com/licenses/gpl-3.0/).
+Copyright (C) 2026 Vikas Yadav
+
+You can use, study, change and share it. If you share a modified version, you must also share its source under GPL v3.
+
+The brand logos in `icons/brands/` are trademarks of their owners and are not covered by this license.    
