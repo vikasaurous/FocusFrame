@@ -406,7 +406,11 @@ a:focus-visible {
   border-radius: 16px;
   color: var(--paper);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0) 55%),
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.03),
+      rgba(255, 255, 255, 0) 55%
+    ),
     var(--panel);
   transition:
     border-color 0.2s ease,
@@ -1288,8 +1292,12 @@ body.is-editing .drag-handle {
    Card layout v2: numbered cards, badges, serif titles, mono details.
    Placed last on purpose: it overrides the older .module rules above.
    ══════════════════════════════════════════════════════════════════════ */
-.dashboard { gap: 16px; }
-.dashboard .module-row { gap: 16px; }
+.dashboard {
+  gap: 16px;
+}
+.dashboard .module-row {
+  gap: 16px;
+}
 .dashboard .module {
   flex: var(--w, 1) 1 0%; /* --w is set per card, so rows can be 2/3 + 1/3 */
   min-width: min(100%, 300px);
@@ -1298,8 +1306,12 @@ body.is-editing .drag-handle {
   border-radius: 14px;
   background: var(--panel); /* flat, no gradient */
 }
-.dashboard .module:hover { background: var(--panel-hover); }
-.dashboard .module[data-id="quote"] { min-height: 0; }
+.dashboard .module:hover {
+  background: var(--panel-hover);
+}
+.dashboard .module[data-id="quote"] {
+  min-height: 0;
+}
 
 /* Top row: number on the left, badge on the right. */
 .module-top {
@@ -1310,14 +1322,20 @@ body.is-editing .drag-handle {
 }
 .module-num {
   color: var(--muted);
-  font: 500 0.62rem "JetBrains Mono", ui-monospace, monospace;
+  font:
+    500 0.62rem "JetBrains Mono",
+    ui-monospace,
+    monospace;
   letter-spacing: 0.08em;
 }
 .module-badge {
   padding: 3px 8px;
   border: 1px solid;
   border-radius: 3px;
-  font: 500 0.56rem "JetBrains Mono", ui-monospace, monospace;
+  font:
+    500 0.56rem "JetBrains Mono",
+    ui-monospace,
+    monospace;
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
@@ -1334,16 +1352,24 @@ body.is-editing .drag-handle {
 .dashboard .module-title {
   margin: 0 0 10px;
   color: var(--paper);
-  font: 400 1.9rem/1.1 "Instrument Serif", Georgia, serif;
+  font:
+    400 1.9rem/1.1 "Instrument Serif",
+    Georgia,
+    serif;
   letter-spacing: -0.01em;
   text-transform: none;
 }
-.dashboard .module-title::before { content: none; }
+.dashboard .module-title::before {
+  content: none;
+}
 .module-desc {
   max-width: 48ch;
   margin: 0 0 22px;
   color: color-mix(in srgb, var(--accent) 42%, #d8c9ab);
-  font: 400 0.76rem/1.6 "JetBrains Mono", ui-monospace, monospace;
+  font:
+    400 0.76rem/1.6 "JetBrains Mono",
+    ui-monospace,
+    monospace;
 }
 
 /* Footer tags, pinned to the bottom of every card. */
@@ -1360,7 +1386,10 @@ body.is-editing .drag-handle {
   align-items: center;
   gap: 6px;
   color: var(--muted);
-  font: 400 0.6rem "JetBrains Mono", ui-monospace, monospace;
+  font:
+    400 0.6rem "JetBrains Mono",
+    ui-monospace,
+    monospace;
   letter-spacing: 0.04em;
 }
 .module-tags li::before {
@@ -1386,10 +1415,15 @@ body.is-editing .drag-handle {
   border-bottom: 1px solid var(--line);
   font-size: 1.9rem;
 }
-.dashboard .focus-note { margin-top: 12px; }
+.dashboard .focus-note {
+  margin-top: 12px;
+}
 
 /* Top 3 Tasks: bordered rows with square boxes. */
-.dashboard .task-list { gap: 8px; margin: 0 0 12px; }
+.dashboard .task-list {
+  gap: 8px;
+  margin: 0 0 12px;
+}
 .dashboard .task-item {
   gap: 12px;
   padding: 11px 14px;
@@ -1407,24 +1441,35 @@ body.is-editing .drag-handle {
   background: var(--accent);
 }
 .dashboard .task-text {
-  font: 600 0.76rem "JetBrains Mono", ui-monospace, monospace;
+  font:
+    600 0.76rem "JetBrains Mono",
+    ui-monospace,
+    monospace;
 }
 .dashboard .task-item.is-done .task-text {
   color: var(--muted);
   font-weight: 400;
 }
-.dashboard .task-count { margin-top: 0; padding-top: 0; }
+.dashboard .task-count {
+  margin-top: 0;
+  padding-top: 0;
+}
 
 /* Habits: name | seven squares | streak. */
 .dashboard .habit {
   display: grid;
-  grid-template-columns: minmax(52px, 0.9fr) minmax(0, 5fr) 26px 14px;
+  grid-template-columns: minmax(52px, 0.9fr) minmax(0, 5fr) 28px 14px;
   align-items: center;
   column-gap: 10px;
   margin: 0 0 6px;
 }
-.dashboard .habit > * { order: 0; }
-.dashboard .habit-head { max-width: none; margin: 0 0 8px; }
+.dashboard .habit > * {
+  order: 0;
+}
+.dashboard .habit-head {
+  max-width: none;
+  margin: 0 0 8px;
+}
 .dashboard .habit .habit-days {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -1433,10 +1478,16 @@ body.is-editing .drag-handle {
 }
 .dashboard .habit-day-label {
   text-align: center;
-  font: 500 0.58rem "JetBrains Mono", ui-monospace, monospace;
+  font:
+    500 0.58rem "JetBrains Mono",
+    ui-monospace,
+    monospace;
 }
 .dashboard .habit-name {
-  font: 700 0.72rem "JetBrains Mono", ui-monospace, monospace;
+  font:
+    700 0.72rem "JetBrains Mono",
+    ui-monospace,
+    monospace;
 }
 .dashboard .habit-dot {
   width: 100%;
@@ -1452,28 +1503,43 @@ body.is-editing .drag-handle {
   border-color: var(--accent);
   background: var(--accent);
 }
-.dashboard .habit-dot.is-today:not(.is-filled) { border-color: var(--accent); }
+.dashboard .habit-dot.is-today:not(.is-filled) {
+  border-color: var(--accent);
+}
 .dashboard .habit-streak {
   display: grid;
   place-items: center;
   color: var(--muted);
-  font: 600 0.74rem "JetBrains Mono", ui-monospace, monospace;
+  font:
+    600 0.74rem "JetBrains Mono",
+    ui-monospace,
+    monospace;
 }
-.dashboard .habit-streak.is-live { color: var(--accent); }
+.dashboard .habit-streak.is-live {
+  color: var(--accent);
+}
 .habit-flame-icon {
-  width: 13px;
-  height: 13px;
+  width: 19px;
+  height: 19px;
   fill: none;
   stroke: var(--accent);
   stroke-width: 1.6;
   stroke-linejoin: round;
 }
-.dashboard .habit-remove { opacity: 0; transition: opacity 0.18s ease; }
+.dashboard .habit-remove {
+  opacity: 0;
+  transition: opacity 0.18s ease;
+}
 .dashboard .habit:hover .habit-remove,
-.dashboard .habit:focus-within .habit-remove { opacity: 1; }
+.dashboard .habit:focus-within .habit-remove {
+  opacity: 1;
+}
 
 /* Quick Links: three-column grid, dashed "+ Add" tile. */
-.dashboard .links-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.dashboard .links-grid {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
 .dashboard .link-chip {
   justify-content: center;
   min-width: 0;
@@ -1482,7 +1548,10 @@ body.is-editing .drag-handle {
   border-radius: 5px;
   color: var(--paper);
   background: var(--ground);
-  font: 600 0.68rem "JetBrains Mono", ui-monospace, monospace;
+  font:
+    600 0.68rem "JetBrains Mono",
+    ui-monospace,
+    monospace;
   text-align: center;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1499,7 +1568,10 @@ body.is-editing .drag-handle {
   font-weight: 400;
   cursor: pointer;
 }
-.dashboard .link-add:hover { color: var(--accent); background: transparent; }
+.dashboard .link-add:hover {
+  color: var(--accent);
+  background: transparent;
+}
 
 /* Now: a dark mono box, same look while editing. */
 .dashboard .now-copy,
@@ -1510,23 +1582,36 @@ body.is-editing .drag-handle {
   border-radius: 6px;
   color: var(--paper);
   background: var(--ground);
-  font: 500 0.8rem/1.6 "JetBrains Mono", ui-monospace, monospace;
+  font:
+    500 0.8rem/1.6 "JetBrains Mono",
+    ui-monospace,
+    monospace;
 }
-.dashboard .now-input { resize: none; }
-.dashboard .now-input:focus { border-color: var(--accent); }
+.dashboard .now-input {
+  resize: none;
+}
+.dashboard .now-input:focus {
+  border-color: var(--accent);
+}
 
 /* Quote: serif line, mono author, small icon buttons bottom right. */
 .dashboard .module-quote {
   max-width: none;
   margin: 0;
   color: var(--paper);
-  font: 400 1.55rem/1.25 "Instrument Serif", Georgia, serif;
+  font:
+    400 1.55rem/1.25 "Instrument Serif",
+    Georgia,
+    serif;
 }
 .dashboard .module-quote cite {
   display: block;
   margin: 12px 0 0;
   color: var(--muted);
-  font: 400 0.66rem "JetBrains Mono", ui-monospace, monospace;
+  font:
+    400 0.66rem "JetBrains Mono",
+    ui-monospace,
+    monospace;
   letter-spacing: 0.04em;
   text-transform: none;
 }
@@ -1547,7 +1632,9 @@ body.is-editing .drag-handle {
   color: var(--muted);
   background: var(--ground);
   cursor: pointer;
-  transition: color 0.18s ease, border-color 0.18s ease;
+  transition:
+    color 0.18s ease,
+    border-color 0.18s ease;
 }
 .quote-icon svg {
   width: 14px;
@@ -1559,11 +1646,22 @@ body.is-editing .drag-handle {
   stroke-linejoin: round;
 }
 .quote-icon:hover,
-.quote-icon.is-active { color: var(--accent); border-color: var(--accent); }
-.quote-icon:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.quote-icon.is-active {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.quote-icon:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
 
 /* Countdown: big pixel number, serif label beside it. */
-.countdown-body { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 32px; }
+.countdown-body {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 32px;
+}
 .dashboard .countdown-number {
   display: flex;
   flex-direction: column;
@@ -1573,23 +1671,41 @@ body.is-editing .drag-handle {
 }
 .countdown-big {
   color: var(--accent);
-  font: 300 4rem/0.9 "Geist Pixel", "Courier New", monospace;
+  font:
+    300 4rem/0.9 "Geist Pixel",
+    "Courier New",
+    monospace;
   letter-spacing: -0.02em;
 }
 .dashboard .countdown-unit {
   color: var(--muted);
-  font: 400 0.62rem "JetBrains Mono", ui-monospace, monospace;
+  font:
+    400 0.62rem "JetBrains Mono",
+    ui-monospace,
+    monospace;
   letter-spacing: 0.04em;
 }
-.countdown-meta { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-width: 0; }
+.countdown-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  min-width: 0;
+}
 .dashboard .countdown-label {
   margin: 0;
   color: var(--paper);
-  font: 400 2rem/1.1 "Instrument Serif", Georgia, serif;
+  font:
+    400 2rem/1.1 "Instrument Serif",
+    Georgia,
+    serif;
 }
 .dashboard .countdown-date {
   margin: 0 0 6px;
-  font: 400 0.66rem "JetBrains Mono", ui-monospace, monospace;
+  font:
+    400 0.66rem "JetBrains Mono",
+    ui-monospace,
+    monospace;
 }
 .dashboard .module[data-id="countdown"] .mini-btn[data-countdown-clear] {
   margin-top: 0;
@@ -1598,8 +1714,33 @@ body.is-editing .drag-handle {
 
 /* Small screens: cards stack full width, smaller titles. */
 @media (max-width: 640px) {
-  .dashboard .module { padding: 18px 18px 16px; }
-  .dashboard .module-title { font-size: 1.6rem; }
-  .countdown-big { font-size: 3.2rem; }
-  .dashboard .links-grid { grid-template-columns: repeat(2, 1fr); }
+  .dashboard .module {
+    padding: 18px 18px 16px;
+  }
+  .dashboard .module-title {
+    font-size: 1.6rem;
+  }
+  .countdown-big {
+    font-size: 3.2rem;
+  }
+  .dashboard .links-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+/* Wide habit card: bigger squares. */
+@container (min-width: 760px) {
+  .dashboard .habit-dot {
+    max-width: 44px;
+  }
+  .dashboard .habit .habit-days {
+    gap: 8px;
+  }
+  .dashboard .habit-streak {
+    font-size: 0.9rem;
+  }
+}
+@container (min-width: 1100px) {
+  .dashboard .habit-dot {
+    max-width: 52px;
+  }
 }

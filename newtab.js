@@ -570,16 +570,9 @@ function habitDone(id, day) {
   return (state.habitLog[day] || []).includes(id);
 }
 
-// Days in a row, counting back from today (or yesterday if today is not done).
+// Days done this week (Mon-Sun). Gaps do not reset the count.
 function habitStreak(id) {
-  const day = new Date();
-  if (!habitDone(id, todayKey(day))) day.setDate(day.getDate() - 1);
-  let n = 0;
-  while (n < 400 && habitDone(id, todayKey(day))) {
-    n += 1;
-    day.setDate(day.getDate() - 1);
-  }
-  return n;
+  return weekDates().filter((day) => habitDone(id, day)).length;
 }
 
 function todayKey(date = new Date()) {
