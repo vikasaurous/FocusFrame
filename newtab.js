@@ -5,9 +5,9 @@ const DEFAULTS = {
   // Real rows, max 3 cards each. Cards in a row share its width equally.
   // New users see Focus, Tasks, Links, Habits. The rest are one click away.
   rows: [
-    ["focus"],
-    ["tasks", "links"],
-    ["goal", "now", "quote"],
+    ["focus", "tasks"],
+    ["goal", "links"],
+    ["now", "quote"],
     ["countdown"],
   ],
   visible: {
@@ -127,6 +127,53 @@ const moduleNames = {
   tasks: "Top 3 Tasks",
   countdown: "Countdown",
 };
+
+// Card chrome from the layout design: number, badge, one-line pitch, footer tags.
+// w = share of the row, so a row can be 2/3 + 1/3 instead of always equal.
+const MODULE_META = {
+  focus: {
+    num: "01",
+    w: 2.1,
+    desc: "One daily intention, with an optional note — so the most important thing stays in sight.",
+    tags: ["One intention", "Optional note"],
+  },
+  tasks: {
+    num: "02",
+    w: 1,
+    desc: "Three tasks. No more.",
+    tags: ["Max three", "Completed clear overnight", "Unfinished carry over"],
+  },
+  goal: {
+    num: "03",
+    w: 1,
+    desc: "Up to five habits, tracked Monday to Sunday with streaks.",
+    tags: ["Max five", "Weekly grid", "Streaks"],
+  },
+  links: {
+    num: "04",
+    w: 1.15,
+    desc: "Your own shortcuts to the places you visit most.",
+    tags: ["Personal shortcuts", "One click away"],
+  },
+  now: {
+    num: "05",
+    w: 0.75,
+    desc: "An editable note for what you're doing right now.",
+    tags: ["Editable note"],
+  },
+  quote: {
+    num: "06",
+    w: 1.5,
+    desc: "A daily quote. Shuffle it, pin a favourite, or add your own.",
+    tags: ["Daily", "Shuffle", "Pin", "Custom quotes"],
+  },
+  countdown: {
+    num: "07",
+    w: 1,
+    desc: "Count down to something that matters — an exam, a trip, a launch, a milestone.",
+    tags: ["Exams", "Travel", "Launches", "Milestones"],
+  },
+};
 const quotes = [
   ["Make room for the work that matters.", "FocusFrame"],
   [
@@ -154,6 +201,15 @@ const SCENE_PETS = ["cat", "dog", "dino"];
 
 const $ = (selector) => document.querySelector(selector);
 const dashboard = $("#dashboard");
+// "+ Add" tile in Quick Links opens the customize panel at the link form.
+dashboard.addEventListener("click", (event) => {
+  if (!event.target.closest("[data-links-add]")) return;
+  toggleEditor(true);
+  window.setTimeout(() => {
+    const field = $("#link-name");
+    if (field) field.focus();
+  }, 80);
+});
 
 async function load() {
   let savedData = {};
@@ -574,7 +630,7 @@ function currentQuote() {
   return { text, author, pinned: false, custom: !!custom };
 }
 
-function moduleMarkup(id) {
+function moduleBody(id) {
   const title = moduleNames[id];
   const handle = '<span class="drag-handle" aria-hidden="true">DRAG</span>';
 
@@ -596,7 +652,9 @@ function moduleMarkup(id) {
           (link) =>
             `<a class="link-chip" href="${safeUrl(link.url)}">${escapeHtml(link.name)}</a>`,
         )
-        .join("")}</nav>
+        .join(
+          "",
+        )}<button class="link-chip link-add" type="button" data-links-add>+ Add</button></nav>
     </article>`;
   }
 
@@ -621,8 +679,10 @@ function moduleMarkup(id) {
     ];
     const week = weekDates();
     const today = todayKey();
+    const flame =
+      '<svg class="habit-flame-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c1 3.2 4.5 5.2 4.5 9.5a4.5 4.5 0 0 1-9 0c0-1.7.7-2.8 1.6-3.8.3 1.3 1 2 1.9 2.3C10.6 8.4 10.8 5.6 12 3z"/></svg>';
     const head = state.habits.length
-      ? `<div class="habit-days habit-head" aria-hidden="true">${LABELS.map((label, i) => `<span class="habit-day-label${week[i] === today ? " is-today" : ""}">${label}</span>`).join("")}</div>`
+      ? `<div class="habit habit-head" aria-hidden="true"><span></span><div class="habit-days">${LABELS.map((label, i) => `<span class="habit-day-label${week[i] === today ? " is-today" : ""}">${label}</span>`).join("")}</div><span class="habit-streak">${flame}</span><span></span></div>`
       : "";
     const rows = state.habits
       .map((habit) => {
@@ -632,9 +692,8 @@ function moduleMarkup(id) {
             return `<button class="habit-dot${on ? " is-filled" : ""}${day === today ? " is-today" : ""}" type="button" data-habit-id="${escapeHtml(habit.id)}" data-date="${day}" aria-pressed="${on}" aria-label="${escapeHtml(habit.name)}, ${NAMES[i]}: ${on ? "done" : "not done"}"${day > today ? " disabled" : ""}></button>`;
           })
           .join("");
-        const count = week.filter((day) => habitDone(habit.id, day)).length;
         const streak = habitStreak(habit.id);
-        return `<div class="habit"><div class="habit-top"><span class="habit-name">${escapeHtml(habit.name)}</span><span class="habit-meta">${count}/7${streak > 1 ? ` · ${streak} day streak` : ""}</span><button class="habit-remove" type="button" data-habit-remove="${escapeHtml(habit.id)}" aria-label="Remove habit: ${escapeHtml(habit.name)}">&times;</button></div><div class="habit-days">${dots}</div></div>`;
+        return `<div class="habit"><span class="habit-name">${escapeHtml(habit.name)}</span><div class="habit-days">${dots}</div><span class="habit-streak${streak ? " is-live" : ""}" aria-label="${streak} day streak">${streak}</span><button class="habit-remove" type="button" data-habit-remove="${escapeHtml(habit.id)}" aria-label="Remove habit: ${escapeHtml(habit.name)}">&times;</button></div>`;
       })
       .join("");
     const form =
@@ -699,13 +758,17 @@ function moduleMarkup(id) {
     const unit =
       days === 0
         ? ""
-        : `${Math.abs(days) === 1 ? "day" : "days"} ${days > 0 ? "to go" : "ago"}`;
+        : `${Math.abs(days) === 1 ? "day" : "days"} ${days > 0 ? "until" : "ago"}`;
     return `<article class="module" data-id="countdown" draggable="false">${handle}
       <p class="module-title">${title}</p>
-      <p class="countdown-number">${big}<span class="countdown-unit">${unit}</span></p>
-      <p class="countdown-label">${escapeHtml(label || "Countdown")}</p>
-      <p class="countdown-date">${pretty}</p>
-      <button class="mini-btn" type="button" data-countdown-clear>Change</button>
+      <div class="countdown-body">
+        <p class="countdown-number"><span class="countdown-big">${big}</span><span class="countdown-unit">${unit}</span></p>
+        <div class="countdown-meta">
+          <p class="countdown-label">${escapeHtml(label || "Countdown")}</p>
+          <p class="countdown-date">${pretty}</p>
+          <button class="mini-btn" type="button" data-countdown-clear>Change</button>
+        </div>
+      </div>
     </article>`;
   }
 
@@ -722,20 +785,42 @@ function moduleMarkup(id) {
     <p class="module-title">${title}</p>
     <blockquote class="module-quote">“${escapeHtml(quote.text)}”${cite}</blockquote>
     <div class="quote-actions">
-      <button class="mini-btn" type="button" data-quote-action="shuffle">Shuffle</button>
-      <button class="mini-btn${quote.pinned ? " is-active" : ""}" type="button" data-quote-action="pin" aria-pressed="${quote.pinned}">${quote.pinned ? "Unpin" : "Pin"}</button>
-      <button class="mini-btn" type="button" data-quote-action="add" aria-expanded="${quoteFormOpen}">Add own</button>
-      ${quote.custom ? '<button class="mini-btn" type="button" data-quote-action="delete">Delete</button>' : ""}
+      <button class="quote-icon" type="button" data-quote-action="shuffle" aria-label="Shuffle quote" title="Shuffle"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h3.5c3 0 4.5 2 6 5s3 5 6 5H21M3 17h3.5c1.6 0 2.8-.6 3.8-1.6M21 7h-2.5c-1.6 0-2.8.6-3.8 1.6M18.5 4 21 7l-2.5 3M18.5 14 21 17l-2.5 3"/></svg></button>
+      <button class="quote-icon${quote.pinned ? " is-active" : ""}" type="button" data-quote-action="pin" aria-pressed="${quote.pinned}" aria-label="${quote.pinned ? "Unpin quote" : "Pin quote"}" title="${quote.pinned ? "Unpin" : "Pin"}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4h6l-1 6 3 3v1.5H7V13l3-3zM12 14.5V21"/></svg></button>
+      <button class="quote-icon" type="button" data-quote-action="add" aria-expanded="${quoteFormOpen}" aria-label="Add your own quote" title="Add your own"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+      ${quote.custom ? '<button class="quote-icon" type="button" data-quote-action="delete" aria-label="Delete this quote" title="Delete"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12"/></svg></button>' : ""}
     </div>
     ${quoteForm}
   </article>`;
 }
 
+// Wraps each card with the design chrome: number + badge, serif title,
+// one-line pitch, and footer tags. Card contents come from moduleBody().
+function moduleMarkup(id, position) {
+  const html = moduleBody(id);
+  const meta = MODULE_META[id];
+  if (!meta) return html;
+  const on = !!DEFAULTS.visible[id];
+  // Number = where the card sits now (01, 02, ...), so it follows drag and drop.
+  const num = position ? String(position).padStart(2, "0") : meta.num;
+  const top = `<div class="module-top"><span class="module-num" aria-hidden="true">${num}</span><span class="module-badge ${on ? "is-on" : "is-opt"}">${on ? "On by default" : "Optional"}</span></div>`;
+  const head = `${top}<h3 class="module-title">${moduleNames[id]}</h3><p class="module-desc">${meta.desc}</p>`;
+  const tags = `<ul class="module-tags" aria-label="What it does">${meta.tags.map((tag) => `<li>${tag}</li>`).join("")}</ul>`;
+  return html
+    .replace(
+      '<article class="module"',
+      `<article class="module" style="--w:${meta.w}"`,
+    )
+    .replace(`<p class="module-title">${moduleNames[id]}</p>`, head)
+    .replace(/<\/article>\s*$/, `${tags}</article>`);
+}
+
 function render() {
+  let position = 0; // 01, 02, ... in the order cards are shown
   dashboard.innerHTML = visibleRows()
     .map(
       (row) =>
-        `<div class="module-row">${row.map(moduleMarkup).join("")}</div>`,
+        `<div class="module-row">${row.map((id) => moduleMarkup(id, ++position)).join("")}</div>`,
     )
     .join("");
   renderToggles();

@@ -1283,3 +1283,323 @@ body.is-editing .drag-handle {
     height: 26px;
   }
 }
+
+/* ══════════════════════════════════════════════════════════════════════
+   Card layout v2: numbered cards, badges, serif titles, mono details.
+   Placed last on purpose: it overrides the older .module rules above.
+   ══════════════════════════════════════════════════════════════════════ */
+.dashboard { gap: 16px; }
+.dashboard .module-row { gap: 16px; }
+.dashboard .module {
+  flex: var(--w, 1) 1 0%; /* --w is set per card, so rows can be 2/3 + 1/3 */
+  min-width: min(100%, 300px);
+  min-height: 0;
+  padding: 22px 24px 20px;
+  border-radius: 14px;
+  background: var(--panel); /* flat, no gradient */
+}
+.dashboard .module:hover { background: var(--panel-hover); }
+.dashboard .module[data-id="quote"] { min-height: 0; }
+
+/* Top row: number on the left, badge on the right. */
+.module-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.module-num {
+  color: var(--muted);
+  font: 500 0.62rem "JetBrains Mono", ui-monospace, monospace;
+  letter-spacing: 0.08em;
+}
+.module-badge {
+  padding: 3px 8px;
+  border: 1px solid;
+  border-radius: 3px;
+  font: 500 0.56rem "JetBrains Mono", ui-monospace, monospace;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.module-badge.is-on {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 70%, transparent);
+}
+.module-badge.is-opt {
+  color: var(--muted);
+  border-color: #3a3d42;
+}
+
+/* Serif title + one-line pitch in a warm tone that follows the accent. */
+.dashboard .module-title {
+  margin: 0 0 10px;
+  color: var(--paper);
+  font: 400 1.9rem/1.1 "Instrument Serif", Georgia, serif;
+  letter-spacing: -0.01em;
+  text-transform: none;
+}
+.dashboard .module-title::before { content: none; }
+.module-desc {
+  max-width: 48ch;
+  margin: 0 0 22px;
+  color: color-mix(in srgb, var(--accent) 42%, #d8c9ab);
+  font: 400 0.76rem/1.6 "JetBrains Mono", ui-monospace, monospace;
+}
+
+/* Footer tags, pinned to the bottom of every card. */
+.module-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin: auto 0 0;
+  padding: 22px 0 0;
+  list-style: none;
+}
+.module-tags li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font: 400 0.6rem "JetBrains Mono", ui-monospace, monospace;
+  letter-spacing: 0.04em;
+}
+.module-tags li::before {
+  content: "";
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+/* Drag handle moves to the top middle so it never covers the badge. */
+.dashboard .drag-handle {
+  top: 8px;
+  right: auto;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Daily Focus: big serif line with a rule under it. */
+.dashboard .focus-prompt {
+  max-width: none;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+  font-size: 1.9rem;
+}
+.dashboard .focus-note { margin-top: 12px; }
+
+/* Top 3 Tasks: bordered rows with square boxes. */
+.dashboard .task-list { gap: 8px; margin: 0 0 12px; }
+.dashboard .task-item {
+  gap: 12px;
+  padding: 11px 14px;
+  border-radius: 6px;
+  background: var(--ground);
+}
+.dashboard .task-check {
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid #5a5d63;
+  border-radius: 3px;
+}
+.dashboard .task-item.is-done .task-check {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+.dashboard .task-text {
+  font: 600 0.76rem "JetBrains Mono", ui-monospace, monospace;
+}
+.dashboard .task-item.is-done .task-text {
+  color: var(--muted);
+  font-weight: 400;
+}
+.dashboard .task-count { margin-top: 0; padding-top: 0; }
+
+/* Habits: name | seven squares | streak. */
+.dashboard .habit {
+  display: grid;
+  grid-template-columns: minmax(52px, 0.9fr) minmax(0, 5fr) 26px 14px;
+  align-items: center;
+  column-gap: 10px;
+  margin: 0 0 6px;
+}
+.dashboard .habit > * { order: 0; }
+.dashboard .habit-head { max-width: none; margin: 0 0 8px; }
+.dashboard .habit .habit-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  justify-items: stretch;
+}
+.dashboard .habit-day-label {
+  text-align: center;
+  font: 500 0.58rem "JetBrains Mono", ui-monospace, monospace;
+}
+.dashboard .habit-name {
+  font: 700 0.72rem "JetBrains Mono", ui-monospace, monospace;
+}
+.dashboard .habit-dot {
+  width: 100%;
+  max-width: 32px;
+  height: auto;
+  aspect-ratio: 1;
+  justify-self: center;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--ground);
+}
+.dashboard .habit-dot.is-filled {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+.dashboard .habit-dot.is-today:not(.is-filled) { border-color: var(--accent); }
+.dashboard .habit-streak {
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  font: 600 0.74rem "JetBrains Mono", ui-monospace, monospace;
+}
+.dashboard .habit-streak.is-live { color: var(--accent); }
+.habit-flame-icon {
+  width: 13px;
+  height: 13px;
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+}
+.dashboard .habit-remove { opacity: 0; transition: opacity 0.18s ease; }
+.dashboard .habit:hover .habit-remove,
+.dashboard .habit:focus-within .habit-remove { opacity: 1; }
+
+/* Quick Links: three-column grid, dashed "+ Add" tile. */
+.dashboard .links-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.dashboard .link-chip {
+  justify-content: center;
+  min-width: 0;
+  padding: 10px 8px;
+  overflow: hidden;
+  border-radius: 5px;
+  color: var(--paper);
+  background: var(--ground);
+  font: 600 0.68rem "JetBrains Mono", ui-monospace, monospace;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dashboard .link-chip:hover {
+  border-color: var(--accent);
+  color: var(--paper);
+  background: var(--ground);
+}
+.dashboard .link-add {
+  border-style: dashed;
+  color: var(--muted);
+  background: transparent;
+  font-weight: 400;
+  cursor: pointer;
+}
+.dashboard .link-add:hover { color: var(--accent); background: transparent; }
+
+/* Now: a dark mono box, same look while editing. */
+.dashboard .now-copy,
+.dashboard .now-input {
+  margin: 0;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--paper);
+  background: var(--ground);
+  font: 500 0.8rem/1.6 "JetBrains Mono", ui-monospace, monospace;
+}
+.dashboard .now-input { resize: none; }
+.dashboard .now-input:focus { border-color: var(--accent); }
+
+/* Quote: serif line, mono author, small icon buttons bottom right. */
+.dashboard .module-quote {
+  max-width: none;
+  margin: 0;
+  color: var(--paper);
+  font: 400 1.55rem/1.25 "Instrument Serif", Georgia, serif;
+}
+.dashboard .module-quote cite {
+  display: block;
+  margin: 12px 0 0;
+  color: var(--muted);
+  font: 400 0.66rem "JetBrains Mono", ui-monospace, monospace;
+  letter-spacing: 0.04em;
+  text-transform: none;
+}
+.dashboard .quote-actions {
+  align-self: flex-end;
+  gap: 8px;
+  margin: 14px 0 0;
+  padding-top: 0;
+}
+.quote-icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  color: var(--muted);
+  background: var(--ground);
+  cursor: pointer;
+  transition: color 0.18s ease, border-color 0.18s ease;
+}
+.quote-icon svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.quote-icon:hover,
+.quote-icon.is-active { color: var(--accent); border-color: var(--accent); }
+.quote-icon:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+/* Countdown: big pixel number, serif label beside it. */
+.countdown-body { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 32px; }
+.dashboard .countdown-number {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+}
+.countdown-big {
+  color: var(--accent);
+  font: 300 4rem/0.9 "Geist Pixel", "Courier New", monospace;
+  letter-spacing: -0.02em;
+}
+.dashboard .countdown-unit {
+  color: var(--muted);
+  font: 400 0.62rem "JetBrains Mono", ui-monospace, monospace;
+  letter-spacing: 0.04em;
+}
+.countdown-meta { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-width: 0; }
+.dashboard .countdown-label {
+  margin: 0;
+  color: var(--paper);
+  font: 400 2rem/1.1 "Instrument Serif", Georgia, serif;
+}
+.dashboard .countdown-date {
+  margin: 0 0 6px;
+  font: 400 0.66rem "JetBrains Mono", ui-monospace, monospace;
+}
+.dashboard .module[data-id="countdown"] .mini-btn[data-countdown-clear] {
+  margin-top: 0;
+  align-self: flex-start;
+}
+
+/* Small screens: cards stack full width, smaller titles. */
+@media (max-width: 640px) {
+  .dashboard .module { padding: 18px 18px 16px; }
+  .dashboard .module-title { font-size: 1.6rem; }
+  .countdown-big { font-size: 3.2rem; }
+  .dashboard .links-grid { grid-template-columns: repeat(2, 1fr); }
+}
