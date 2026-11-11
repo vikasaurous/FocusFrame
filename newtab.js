@@ -654,8 +654,7 @@ function moduleBody(id) {
   if (id === "now") {
     return `<article class="module" data-id="now" draggable="false">${handle}
       <p class="module-title">${title}</p>
-      <p class="now-copy" id="now-copy">${escapeHtml(state.now)}</p>
-      <textarea class="now-input" id="now-input" aria-label="What I'm doing now" rows="3">${escapeHtml(state.now)}</textarea>
+      <textarea class="now-input" id="now-input" aria-label="What I'm doing now" placeholder="Write what you're working on right now..." rows="3" maxlength="500" spellcheck="true">${escapeHtml(state.now)}</textarea>
     </article>`;
   }
 
@@ -898,15 +897,10 @@ function bindModuleEvents() {
     });
 
   const nowInput = $("#now-input");
-  const nowCopy = $("#now-copy");
   if (nowInput) {
-    nowInput.addEventListener("input", () => {
-      if (nowCopy) nowCopy.textContent = nowInput.value;
-    });
     nowInput.addEventListener("change", () => {
-      state.now = nowInput.value.trim() || DEFAULTS.now;
+      state.now = nowInput.value;
       save("Now updated");
-      render();
     });
   }
 
