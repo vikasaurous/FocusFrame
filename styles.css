@@ -536,36 +536,24 @@ a:focus-visible {
   color: var(--paper);
   background: #252a2e;
 }
-.now-copy {
-  margin: 0;
-  color: #b2c5de;
-  font-size: 0.88rem;
-  line-height: 1.55;
-}
 .now-input {
-  display: none;
+  display: block;
   width: 100%;
-  resize: none;
+  min-height: 76px;
+  resize: vertical;
   margin-top: 8px;
-  padding: 6px 0;
-  border: 0;
-  border-bottom: 1px solid var(--line);
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
   outline: 0;
   color: var(--soft);
-  background: transparent;
+  background: #0e0f10;
   font-family: Bahnschrift, "Segoe UI", sans-serif;
   font-size: 0.82rem;
   line-height: 1.5;
 }
 .now-input:focus {
   border-color: var(--accent);
-  display: block;
-}
-.module[data-id="now"]:focus-within .now-input {
-  display: block;
-}
-.module[data-id="now"]:focus-within .now-copy {
-  display: none;
 }
 .habit {
   margin-bottom: 12px;
